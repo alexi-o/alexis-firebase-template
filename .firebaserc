@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "meta-scraper-1bad5"
-  }
+    "default": "meta-scraper-1bad5",
+    "staging": "meta-scraper-1bad5"
+  },
+  "targets": {},
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
 }

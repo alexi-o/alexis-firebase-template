@@ -1,94 +1,39 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Button, Container, Grid, Input, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { Button, Container, Grid, Typography } from "@mui/material";
 import { CloudUpload } from "@mui/icons-material";
-import Sidebar from "./Sidebar";
-import ImageDetails from "./ImageDetails";
+import { storage } from "./firebase";
 import "./App.css";
 
 function App() {
   const [files, setFiles] = useState([]);
-  const [selectedUpload, setSelectedUpload] = useState(null);
   const [uploads, setUploads] = useState([]);
+  const [uploading, setUploading] = useState(false);
 
   const handleFileChange = (e) => {
     setFiles([...files, ...e.target.files]);
   };
 
-  useEffect(() => {
-    const fetchPreviousUploads = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:5000/");
-        setUploads(response.data.image_urls);
-        if (response.data.image_urls.length > 0) {
-          setSelectedUpload(response.data.image_urls[0]);
-        }
-      } catch (error) {
-        console.error("Error fetching previous uploads:", error);
-      }
-    };
-
-    fetchPreviousUploads();
-  }, []);
-
-  const handleBulkUpload = async () => {
+  const handleUpload = async () => {
+    setUploading(true);
     const uploadPromises = files.map(async (file) => {
-      const formData = new FormData();
-      formData.append("photo", file);
-
-      try {
-        const response = await axios.post(
-          "http://127.0.0.1:5000/upload",
-          formData,
-        );
-
-        const { image_url, metadata } = response.data;
-
-        return {
-          name: generateRandomId(),
-          imageUrl: `http://127.0.0.1:5000${image_url}`,
-          metadata: JSON.parse(metadata),
-        };
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        return null;
-      }
+      const storageRef = ref(storage, `images/${file.name}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      return { name: file.name, url };
     });
 
     const uploadedFiles = await Promise.all(uploadPromises);
-    setUploads((prevUploads) => [
-      ...prevUploads,
-      ...uploadedFiles.filter(Boolean),
-    ]);
+    setUploads((prevUploads) => [...prevUploads, ...uploadedFiles]);
     setFiles([]);
-  };
-
-  const generateRandomId = () => {
-    return Math.random().toString(36).substring(2, 15);
-  };
-
-  const selectUpload = (index) => {
-    if (index >= 0 && index < uploads.length) {
-      setSelectedUpload(uploads[index]);
-    }
-  };
-
-  const deleteAllFiles = async () => {
-    try {
-      const response = await axios.post("http://127.0.0.1:5000/delete_all");
-      console.log("Delete response", response);
-      setUploads([]);
-    } catch (error) {
-      console.log("Error deleting files:", error);
-    }
+    setUploading(false);
   };
 
   return (
     <Container maxWidth="md" className="App">
       <Typography variant="h4" align="center" gutterBottom>
-        Image Upload and Metadata Generation
+        Image Upload and Storage with Firebase
       </Typography>
-      <Sidebar uploads={uploads} selectUpload={selectUpload} />
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={12}>
           <input
@@ -103,16 +48,23 @@ function App() {
             variant="contained"
             color="primary"
             startIcon={<CloudUpload />}
-            onClick={handleBulkUpload}
+            onClick={handleUpload}
+            disabled={uploading}
           >
-            Bulk Upload and Generate Metadata
+            {uploading ? "Uploading..." : "Upload Images"}
           </Button>
         </Grid>
       </Grid>
-      <ImageDetails selectedUpload={selectedUpload} />
-      <Button variant="contained" color="primary" onClick={deleteAllFiles}>
-        Delete
-      </Button>
+      <Grid container spacing={2}>
+        {uploads.map((upload, index) => (
+          <Grid item key={index} xs={12} sm={6} md={4}>
+            <img src={upload.url} alt={upload.name} style={{ width: "100%" }} />
+            <Typography variant="body2" align="center">
+              {upload.name}
+            </Typography>
+          </Grid>
+        ))}
+      </Grid>
     </Container>
   );
 }
