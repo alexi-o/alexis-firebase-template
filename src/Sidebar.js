@@ -1,30 +1,37 @@
 import React from "react";
 
 function Sidebar({ uploads, selectUpload }) {
-  const imageStyle = {
-    maxWidth: "100px", // Adjust the maximum width as needed
-    maxHeight: "100px", // Adjust the maximum height as needed
+  if (!uploads) {
+    return null;
+  }
+  const galleryStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
+    gap: "10px",
   };
+
+  const imageStyle = {
+    maxWidth: "100%",
+    maxHeight: "100%",
+    cursor: "pointer",
+  };
+
   return (
     <div className="sidebar">
       <h2>Previous Uploads</h2>
-      <ul>
+      <div style={galleryStyle}>
         {uploads.map((upload, index) => (
-          <li key={index}>
-            <button onClick={() => selectUpload(index)}>
-              {upload.imageUrl ? (
-                <img
-                  src={upload.imageUrl}
-                  alt="Uploaded file"
-                  style={imageStyle}
-                />
-              ) : (
-                "No image"
-              )}
-            </button>
-          </li>
+          <>
+            <img
+              key={index}
+              src={upload.imageUrl}
+              alt="Uploaded file"
+              style={imageStyle}
+              onClick={() => selectUpload(index)}
+            />
+          </>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

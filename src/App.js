@@ -3,23 +3,33 @@ import axios from "axios";
 import { Button, Container, Grid, Input, Typography } from "@mui/material";
 import { CloudUpload } from "@mui/icons-material";
 import Sidebar from "./Sidebar";
+import ImageDetails from "./ImageDetails";
 import "./App.css";
 
 function App() {
   const [files, setFiles] = useState([]);
   const [selectedUpload, setSelectedUpload] = useState(null);
   const [uploads, setUploads] = useState([]);
-  const [keywords, setKeywords] = useState([]);
-
-  useEffect(() => {
-    if (selectedUpload === null && uploads.length > 0) {
-      setSelectedUpload(uploads[0]);
-    }
-  }, [uploads, selectedUpload]);
 
   const handleFileChange = (e) => {
     setFiles([...files, ...e.target.files]);
   };
+
+  useEffect(() => {
+    const fetchPreviousUploads = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:5000/");
+        setUploads(response.data.image_urls);
+        if (response.data.image_urls.length > 0) {
+          setSelectedUpload(response.data.image_urls[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching previous uploads:", error);
+      }
+    };
+
+    fetchPreviousUploads();
+  }, []);
 
   const handleBulkUpload = async () => {
     const uploadPromises = files.map(async (file) => {
@@ -29,7 +39,7 @@ function App() {
       try {
         const response = await axios.post(
           "http://127.0.0.1:5000/upload",
-          formData
+          formData,
         );
 
         const { image_url, metadata } = response.data;
@@ -63,17 +73,14 @@ function App() {
     }
   };
 
-  const addKeyword = (keyword) => {
-    if (!keywords.includes(keyword)) {
-      setKeywords([...keywords, keyword]);
+  const deleteAllFiles = async () => {
+    try {
+      const response = await axios.post("http://127.0.0.1:5000/delete_all");
+      console.log("Delete response", response);
+      setUploads([]);
+    } catch (error) {
+      console.log("Error deleting files:", error);
     }
-  };
-
-  const removeKeyword = (keywordToRemove) => {
-    const updatedKeywords = keywords.filter(
-      (keyword) => keyword !== keywordToRemove
-    );
-    setKeywords(updatedKeywords);
   };
 
   return (
@@ -102,56 +109,10 @@ function App() {
           </Button>
         </Grid>
       </Grid>
-      {selectedUpload && (
-        <div>
-          {selectedUpload.imageUrl && (
-            <img
-              className="uploaded-image"
-              src={selectedUpload.imageUrl}
-              alt="Uploaded file"
-            />
-          )}
-          {keywords.length > 0 && (
-            <div className="keyword-list">
-              <Typography variant="h6" gutterBottom>
-                Keywords:
-              </Typography>
-              <ul>
-                {keywords.map((keyword, index) => (
-                  <li key={index}>
-                    {keyword}{" "}
-                    <button
-                      className="remove-button"
-                      onClick={() => removeKeyword(keyword)}
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {selectedUpload.metadata && (
-            <div className="metadata">
-              <Typography variant="h6" gutterBottom>
-                Generated Metadata:
-              </Typography>
-              <ul>
-                {selectedUpload.metadata.map((prediction, index) => (
-                  <li key={index}>
-                    <button
-                      className="metadata-button"
-                      onClick={() => addKeyword(prediction[1])}
-                    >
-                      {prediction[1]} ({(prediction[2] * 100).toFixed(2)}%)
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
+      <ImageDetails selectedUpload={selectedUpload} />
+      <Button variant="contained" color="primary" onClick={deleteAllFiles}>
+        Delete
+      </Button>
     </Container>
   );
 }
