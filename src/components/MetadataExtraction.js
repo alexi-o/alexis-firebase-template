@@ -10,17 +10,14 @@ function MetadataExtraction() {
     setFile(e.target.files[0]);
   };
 
-  const handleMetadataExtraction = async () => {
+  const handleMetadataExtraction = async (url) => {
     if (!file) return;
 
     const formData = new FormData();
     formData.append("photo", file);
 
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:5000/extract_metadata",
-        formData
-      );
+      const response = await axios.post(url, formData);
       setMetadata(response.data.metadata);
     } catch (error) {
       console.error("Error extracting metadata:", error);
@@ -40,9 +37,24 @@ function MetadataExtraction() {
           <Button
             variant="contained"
             color="primary"
-            onClick={handleMetadataExtraction}
+            onClick={() =>
+              handleMetadataExtraction("http://127.0.0.1:5000/extract_metadata")
+            }
           >
-            Extract Metadata
+            Extract Metadata (TensorFlow)
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() =>
+              handleMetadataExtraction(
+                "http://127.0.0.1:5000/extract_exif_metadata"
+              )
+            }
+          >
+            Extract Metadata (ExifTool)
           </Button>
         </Grid>
         {metadata && (
