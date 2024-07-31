@@ -1,5 +1,16 @@
 import React, { useState } from "react";
-import { Button, Grid, Typography } from "@mui/material";
+import {
+  Button,
+  Grid,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 import axios from "axios";
 
 function MetadataExtraction() {
@@ -21,6 +32,58 @@ function MetadataExtraction() {
       setMetadata(response.data.metadata);
     } catch (error) {
       console.error("Error extracting metadata:", error);
+    }
+  };
+
+  const renderMetadataTable = (metadata) => {
+    if (!metadata) return null;
+
+    if (Array.isArray(metadata)) {
+      // TensorFlow metadata format
+      return (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Label</TableCell>
+                <TableCell>Prediction</TableCell>
+                <TableCell>Probability</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {metadata.map(([id, label, probability]) => (
+                <TableRow key={id}>
+                  <TableCell>{label}</TableCell>
+                  <TableCell>{id}</TableCell>
+                  <TableCell>{(probability * 100).toFixed(2)}%</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      );
+    } else {
+      // ExifTool metadata format
+      return (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Key</TableCell>
+                <TableCell>Value</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {Object.entries(metadata).map(([key, value]) => (
+                <TableRow key={key}>
+                  <TableCell>{key}</TableCell>
+                  <TableCell>{value.toString()}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      );
     }
   };
 
@@ -57,13 +120,9 @@ function MetadataExtraction() {
             Extract Metadata (ExifTool)
           </Button>
         </Grid>
-        {metadata && (
-          <Grid item xs={12}>
-            <Typography variant="body1">
-              <pre>{JSON.stringify(metadata, null, 2)}</pre>
-            </Typography>
-          </Grid>
-        )}
+        <Grid item xs={12}>
+          {metadata && renderMetadataTable(metadata)}
+        </Grid>
       </Grid>
     </div>
   );
