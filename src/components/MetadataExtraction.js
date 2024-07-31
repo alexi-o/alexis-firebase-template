@@ -45,6 +45,13 @@ function MetadataExtraction() {
     setPreviewUrl(null);
   };
 
+  const formatLabel = (label) => {
+    return label
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const renderMetadataTable = (metadata) => {
     if (!metadata) return null;
 
@@ -63,7 +70,7 @@ function MetadataExtraction() {
             <TableBody>
               {metadata.map(([id, label, probability]) => (
                 <TableRow key={id}>
-                  <TableCell>{label}</TableCell>
+                  <TableCell>{formatLabel(label)}</TableCell>
                   <TableCell>{id}</TableCell>
                   <TableCell>{(probability * 100).toFixed(2)}%</TableCell>
                 </TableRow>
