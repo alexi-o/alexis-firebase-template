@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Grid } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 import { CloudUpload } from "@mui/icons-material";
 import Sidebar from "./Sidebar";
 import ImageDetails from "./ImageDetails";
@@ -85,6 +85,9 @@ function Home() {
   return (
     <div>
       <Sidebar uploads={uploads} selectUpload={selectUpload} />
+      <Typography variant="h5" align="center" gutterBottom>
+        AI image recognition
+      </Typography>
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={12}>
           <input
@@ -101,7 +104,7 @@ function Home() {
             startIcon={<CloudUpload />}
             onClick={handleBulkUpload}
           >
-            Bulk Upload and Generate Metadata
+            Bulk Upload
           </Button>
         </Grid>
       </Grid>
