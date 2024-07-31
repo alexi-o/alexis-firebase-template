@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   Button,
   Grid,
@@ -11,6 +11,7 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import { useDropzone } from "react-dropzone";
 import axios from "axios";
 
 function MetadataExtraction() {
@@ -18,11 +19,11 @@ function MetadataExtraction() {
   const [metadata, setMetadata] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
+  const onDrop = useCallback((acceptedFiles) => {
+    const selectedFile = acceptedFiles[0];
     setFile(selectedFile);
     setPreviewUrl(URL.createObjectURL(selectedFile));
-  };
+  }, []);
 
   const handleMetadataExtraction = async (url) => {
     if (!file) return;
@@ -38,6 +39,12 @@ function MetadataExtraction() {
     }
   };
 
+  const handleStartOver = () => {
+    setFile(null);
+    setMetadata(null);
+    setPreviewUrl(null);
+  };
+
   const renderMetadataTable = (metadata) => {
     if (!metadata) return null;
 
@@ -49,6 +56,7 @@ function MetadataExtraction() {
             <TableHead>
               <TableRow>
                 <TableCell>Label</TableCell>
+                <TableCell>Prediction</TableCell>
                 <TableCell>Probability</TableCell>
               </TableRow>
             </TableHead>
@@ -56,6 +64,7 @@ function MetadataExtraction() {
               {metadata.map(([id, label, probability]) => (
                 <TableRow key={id}>
                   <TableCell>{label}</TableCell>
+                  <TableCell>{id}</TableCell>
                   <TableCell>{(probability * 100).toFixed(2)}%</TableCell>
                 </TableRow>
               ))}
@@ -88,45 +97,46 @@ function MetadataExtraction() {
     }
   };
 
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: "image/*",
+  });
+
   return (
     <div>
       <Typography variant="h5" align="center" gutterBottom>
         Metadata Extraction
       </Typography>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12}>
-          <Grid container spacing={2}>
-            <Grid item>
-              <input type="file" accept="image/*" onChange={handleFileChange} />
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() =>
-                  handleMetadataExtraction(
-                    "http://127.0.0.1:5000/extract_metadata"
-                  )
-                }
-              >
-                AI Image Recognition
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() =>
-                  handleMetadataExtraction(
-                    "http://127.0.0.1:5000/extract_exif_metadata"
-                  )
-                }
-              >
-                Extract Image Metadata Tool
-              </Button>
-            </Grid>
-          </Grid>
+      {file && (
+        <Grid container justifyContent="center" style={{ marginBottom: 20 }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleStartOver}
+          >
+            Start Over
+          </Button>
         </Grid>
+      )}
+      <Grid container spacing={2} alignItems="center">
+        {!file && (
+          <Grid item xs={12}>
+            <div
+              {...getRootProps()}
+              style={{
+                border: "2px dashed #cccccc",
+                padding: "20px",
+                textAlign: "center",
+                cursor: "pointer",
+              }}
+            >
+              <input {...getInputProps()} />
+              <Typography variant="body1">
+                Drag & drop an image here, or click to select one
+              </Typography>
+            </div>
+          </Grid>
+        )}
         {previewUrl && (
           <Grid item xs={12}>
             <Grid container direction="column" alignItems="center">
@@ -140,6 +150,38 @@ function MetadataExtraction() {
                   {file.name}
                 </Typography>
               )}
+            </Grid>
+          </Grid>
+        )}
+        {file && (
+          <Grid item xs={12}>
+            <Grid container spacing={2} justifyContent="center">
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() =>
+                    handleMetadataExtraction(
+                      "http://127.0.0.1:5000/image_recognition"
+                    )
+                  }
+                >
+                  AI Image Recognition
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() =>
+                    handleMetadataExtraction(
+                      "http://127.0.0.1:5000/extract_exif_metadata"
+                    )
+                  }
+                >
+                  Extract Image Metadata Tool
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         )}
