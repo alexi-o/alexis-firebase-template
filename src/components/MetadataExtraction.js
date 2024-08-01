@@ -2,29 +2,66 @@ import React, { useState, useCallback } from "react";
 import { Button, Grid, Typography, Paper } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage, auth } from "../firebase"; // Ensure your firebase configuration includes storage and auth
 
 function MetadataExtraction() {
   const [file, setFile] = useState(null);
   const [metadata, setMetadata] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadedUrl, setUploadedUrl] = useState("");
 
   const onDrop = useCallback((acceptedFiles) => {
     const selectedFile = acceptedFiles[0];
     setFile(selectedFile);
     setPreviewUrl(URL.createObjectURL(selectedFile));
+
+    // Start upload immediately
+    handleUpload(selectedFile);
   }, []);
 
-  const handleMetadataExtraction = async (url) => {
+  const handleUpload = (file) => {
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("photo", file);
+    const userId = auth.currentUser ? auth.currentUser.uid : "guest";
+    const filePath = `user_uploads/${userId}/${file.name}`;
+    const storageRef = ref(storage, filePath);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(progress);
+        console.log("Upload is " + progress + "% done");
+      },
+      (error) => {
+        console.error("Error uploading file:", error);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          console.log("File available at", downloadURL);
+          setUploadedUrl(downloadURL);
+        });
+      }
+    );
+  };
+
+  const handleMetadataExtraction = async (url, type) => {
+    if (!url) return;
 
     try {
-      const response = await axios.post(url, formData);
+      const endpoint =
+        type === "recognition"
+          ? "http://127.0.0.1:5000/image_recognition"
+          : "http://127.0.0.1:5000/extract_exif_metadata";
+
+      const response = await axios.post(endpoint, { url });
       setMetadata(response.data.metadata);
     } catch (error) {
-      console.error("Error extracting metadata:", error);
+      console.error(`Error extracting ${type} metadata:`, error);
     }
   };
 
@@ -32,6 +69,8 @@ function MetadataExtraction() {
     setFile(null);
     setMetadata(null);
     setPreviewUrl(null);
+    setUploadProgress(0);
+    setUploadedUrl("");
   };
 
   const formatLabel = (label) => {
@@ -47,14 +86,12 @@ function MetadataExtraction() {
     let metadataText = "";
 
     if (Array.isArray(metadata)) {
-      // TensorFlow metadata format
       metadata.forEach(([id, label, probability]) => {
         metadataText += `${formatLabel(label)}: ${(probability * 100).toFixed(
           2
         )}%\n`;
       });
     } else {
-      // ExifTool metadata format
       for (const [key, value] of Object.entries(metadata)) {
         metadataText += `${key}: ${value.toString()}\n`;
       }
@@ -70,20 +107,18 @@ function MetadataExtraction() {
     );
   };
 
-  const renderMetadataDiv = (metadata) => {
+  const renderMetadataDiv = () => {
     if (!metadata) return null;
 
     let metadataText = "";
 
     if (Array.isArray(metadata)) {
-      // TensorFlow metadata format
       metadata.forEach(([id, label, probability]) => {
         metadataText += `${formatLabel(label)}: ${(probability * 100).toFixed(
           2
         )}%\n`;
       });
     } else {
-      // ExifTool metadata format
       for (const [key, value] of Object.entries(metadata)) {
         metadataText += `${key}: ${value.toString()}\n`;
       }
@@ -181,10 +216,9 @@ function MetadataExtraction() {
                   variant="contained"
                   color="primary"
                   onClick={() =>
-                    handleMetadataExtraction(
-                      "http://127.0.0.1:5000/image_recognition"
-                    )
+                    handleMetadataExtraction(uploadedUrl, "recognition")
                   }
+                  disabled={!uploadedUrl}
                 >
                   AI Image Recognition
                 </Button>
@@ -194,19 +228,27 @@ function MetadataExtraction() {
                   variant="contained"
                   color="secondary"
                   onClick={() =>
-                    handleMetadataExtraction(
-                      "http://127.0.0.1:5000/extract_exif_metadata"
-                    )
+                    handleMetadataExtraction(uploadedUrl, "metadata")
                   }
+                  disabled={!uploadedUrl}
                 >
                   Extract Image Metadata Tool
                 </Button>
               </Grid>
             </Grid>
+            {uploadProgress > 0 && (
+              <Typography
+                variant="body2"
+                align="center"
+                style={{ marginTop: 10 }}
+              >
+                Upload Progress: {uploadProgress.toFixed(2)}%
+              </Typography>
+            )}
           </Grid>
         )}
         <Grid item xs={12}>
-          {metadata && renderMetadataDiv(metadata)}
+          {renderMetadataDiv()}
         </Grid>
       </Grid>
     </div>
