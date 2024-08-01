@@ -1,16 +1,5 @@
 import React, { useState, useCallback } from "react";
-import {
-  Button,
-  Grid,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-} from "@mui/material";
+import { Button, Grid, Typography, Paper } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 
@@ -52,56 +41,41 @@ function MetadataExtraction() {
       .join(" ");
   };
 
-  const renderMetadataTable = (metadata) => {
+  const renderMetadataDiv = (metadata) => {
     if (!metadata) return null;
+
+    let metadataText = "";
 
     if (Array.isArray(metadata)) {
       // TensorFlow metadata format
-      return (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Label</TableCell>
-                <TableCell>Prediction</TableCell>
-                <TableCell>Probability</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {metadata.map(([id, label, probability]) => (
-                <TableRow key={id}>
-                  <TableCell>{formatLabel(label)}</TableCell>
-                  <TableCell>{id}</TableCell>
-                  <TableCell>{(probability * 100).toFixed(2)}%</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      );
+      metadata.forEach(([id, label, probability]) => {
+        metadataText += `${formatLabel(label)}: ${(probability * 100).toFixed(
+          2
+        )}%\n`;
+      });
     } else {
       // ExifTool metadata format
-      return (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Key</TableCell>
-                <TableCell>Value</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Object.entries(metadata).map(([key, value]) => (
-                <TableRow key={key}>
-                  <TableCell>{key}</TableCell>
-                  <TableCell>{value.toString()}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      );
+      for (const [key, value] of Object.entries(metadata)) {
+        metadataText += `${key}: ${value.toString()}\n`;
+      }
     }
+
+    return (
+      <Paper style={{ padding: 16 }}>
+        <div
+          style={{
+            whiteSpace: "pre-wrap",
+            width: "100%",
+            backgroundColor: "#f5f5f5",
+            fontFamily: "inherit",
+            fontSize: "inherit",
+            lineHeight: "1.5",
+          }}
+        >
+          {metadataText}
+        </div>
+      </Paper>
+    );
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -193,7 +167,7 @@ function MetadataExtraction() {
           </Grid>
         )}
         <Grid item xs={12}>
-          {metadata && renderMetadataTable(metadata)}
+          {metadata && renderMetadataDiv(metadata)}
         </Grid>
       </Grid>
     </div>
