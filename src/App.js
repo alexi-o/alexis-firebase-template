@@ -9,6 +9,7 @@ import { Container } from "@mui/material";
 import MetadataExtraction from "./components/MetadataExtraction";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
+import RequestAccess from "./components/RequestAccess";
 import Navbar from "./components/Navbar";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -41,6 +42,7 @@ function App() {
             path="/signup"
             element={user ? <Navigate to="/home" /> : <SignUp />}
           />
+          <Route path="/request-access" element={<RequestAccess />} />
           <Route
             path="/home"
             element={user ? <MetadataExtraction /> : <Navigate to="/login" />}

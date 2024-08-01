@@ -1,4 +1,3 @@
-// src/components/Navbar.js
 import React, { useState, useEffect } from "react";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -12,7 +11,6 @@ const Navbar = () => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -54,6 +52,14 @@ const Navbar = () => {
                 style={{ color: "inherit", textDecoration: "none" }}
               >
                 Signup
+              </Link>
+            </Button>
+            <Button color="inherit">
+              <Link
+                to="/request-access"
+                style={{ color: "inherit", textDecoration: "none" }}
+              >
+                Request Access
               </Link>
             </Button>
           </>
