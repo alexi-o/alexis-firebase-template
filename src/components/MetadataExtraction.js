@@ -2,6 +2,8 @@ import React, { useState, useCallback } from "react";
 import { Button, Grid, Typography, Paper } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase"; // Ensure the correct path to your Firebase configuration
 
 function MetadataExtraction() {
   const [file, setFile] = useState(null);
@@ -32,6 +34,15 @@ function MetadataExtraction() {
     setFile(null);
     setMetadata(null);
     setPreviewUrl(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      console.log("User signed out successfully.");
+    } catch (error) {
+      console.error("Logout failed:", error.message);
+    }
   };
 
   const formatLabel = (label) => {
@@ -70,7 +81,7 @@ function MetadataExtraction() {
     );
   };
 
-  const renderMetadataDiv = (metadata) => {
+  const renderMetadataDiv = () => {
     if (!metadata) return null;
 
     let metadataText = "";
@@ -127,6 +138,11 @@ function MetadataExtraction() {
       <Typography variant="h5" align="center" gutterBottom>
         Metadata Extraction
       </Typography>
+      <Grid container justifyContent="center" style={{ marginBottom: 20 }}>
+        <Button variant="outlined" color="secondary" onClick={handleLogout}>
+          Logout
+        </Button>
+      </Grid>
       {file && (
         <Grid container justifyContent="center" style={{ marginBottom: 20 }}>
           <Button
@@ -206,7 +222,7 @@ function MetadataExtraction() {
           </Grid>
         )}
         <Grid item xs={12}>
-          {metadata && renderMetadataDiv(metadata)}
+          {renderMetadataDiv()}
         </Grid>
       </Grid>
     </div>
