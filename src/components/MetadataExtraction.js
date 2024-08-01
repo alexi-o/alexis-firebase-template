@@ -41,6 +41,35 @@ function MetadataExtraction() {
       .join(" ");
   };
 
+  const copyToClipboard = () => {
+    if (!metadata) return;
+
+    let metadataText = "";
+
+    if (Array.isArray(metadata)) {
+      // TensorFlow metadata format
+      metadata.forEach(([id, label, probability]) => {
+        metadataText += `${formatLabel(label)}: ${(probability * 100).toFixed(
+          2
+        )}%\n`;
+      });
+    } else {
+      // ExifTool metadata format
+      for (const [key, value] of Object.entries(metadata)) {
+        metadataText += `${key}: ${value.toString()}\n`;
+      }
+    }
+
+    navigator.clipboard.writeText(metadataText).then(
+      () => {
+        alert("Metadata copied to clipboard!");
+      },
+      (err) => {
+        console.error("Could not copy text: ", err);
+      }
+    );
+  };
+
   const renderMetadataDiv = (metadata) => {
     if (!metadata) return null;
 
@@ -61,19 +90,29 @@ function MetadataExtraction() {
     }
 
     return (
-      <Paper style={{ padding: 16 }}>
+      <Paper style={{ padding: 16, marginBottom: 16 }}>
         <div
           style={{
             whiteSpace: "pre-wrap",
             width: "100%",
             backgroundColor: "#f5f5f5",
             fontFamily: "inherit",
-            fontSize: "inherit",
+            fontSize: "14px",
             lineHeight: "1.5",
           }}
         >
           {metadataText}
         </div>
+        <Grid container justifyContent="center">
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={copyToClipboard}
+            style={{ marginTop: 16 }}
+          >
+            Copy to Clipboard
+          </Button>
+        </Grid>
       </Paper>
     );
   };
