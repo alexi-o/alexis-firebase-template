@@ -9,25 +9,24 @@ import { Container } from "@mui/material";
 import MetadataExtraction from "./components/MetadataExtraction";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
-import Home from "./components/Home"; // Placeholder for future use
-import { auth } from "./firebase"; // Ensure this path is correct
+import Navbar from "./components/Navbar";
+import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Listen for authentication state changes
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
   return (
     <Router>
+      <Navbar />
       <Container maxWidth="md" className="App">
         <Routes>
           <Route
@@ -46,7 +45,6 @@ function App() {
             path="/home"
             element={user ? <MetadataExtraction /> : <Navigate to="/login" />}
           />
-          <Route path="/welcome" element={<Home />} />
         </Routes>
       </Container>
     </Router>
