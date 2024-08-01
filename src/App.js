@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Container } from "@mui/material";
 import MetadataExtraction from "./components/MetadataExtraction";
+import SignUp from "./components/SignUp";
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <Container maxWidth="md" className="App">
         <Routes>
           <Route path="/" element={<MetadataExtraction />} />
+          <Route path="/signup" element={<SignUp />} />
         </Routes>
       </Container>
     </Router>
