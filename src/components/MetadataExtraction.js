@@ -1,21 +1,56 @@
-import React, { useState, useCallback } from "react";
-import { Button, Grid, Typography, Paper } from "@mui/material";
+import React, { useState, useCallback, useEffect } from "react";
+import {
+  Button,
+  Grid,
+  Typography,
+  Paper,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+} from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage, auth } from "../firebase"; // Ensure your firebase configuration includes storage and auth
+import { collection, getDocs, addDoc, query, where } from "firebase/firestore";
+import { storage, auth, db } from "../firebase";
 
 function MetadataExtraction() {
   const [file, setFile] = useState(null);
   const [metadata, setMetadata] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedUrl, setUploadedUrl] = useState("");
+  const [images, setImages] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const userId = auth.currentUser ? auth.currentUser.uid : "guest";
+
+        // Query Firestore for images belonging to the current user
+        const imagesQuery = query(
+          collection(db, "images"),
+          where("userId", "==", userId)
+        );
+
+        const querySnapshot = await getDocs(imagesQuery);
+        const fetchedImages = querySnapshot.docs.map((doc) => doc.data().url);
+        setImages(fetchedImages);
+        if (fetchedImages.length > 0) {
+          setSelectedImage(fetchedImages[fetchedImages.length - 1]); // Set the most recent image as selected
+        }
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    };
+
+    fetchImages();
+  }, []);
 
   const onDrop = useCallback((acceptedFiles) => {
     const selectedFile = acceptedFiles[0];
     setFile(selectedFile);
-    setPreviewUrl(URL.createObjectURL(selectedFile));
 
     // Start upload immediately
     handleUpload(selectedFile);
@@ -25,7 +60,7 @@ function MetadataExtraction() {
     if (!file) return;
 
     const userId = auth.currentUser ? auth.currentUser.uid : "guest";
-    const filePath = `user_uploads/${userId}/${file.name}`;
+    const filePath = `images/${userId}/${file.name}`;
     const storageRef = ref(storage, filePath);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -40,10 +75,23 @@ function MetadataExtraction() {
       (error) => {
         console.error("Error uploading file:", error);
       },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log("File available at", downloadURL);
-          setUploadedUrl(downloadURL);
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        console.log("File available at", downloadURL);
+        setUploadedUrl(downloadURL);
+
+        // Save the image URL to Firestore
+        await addDoc(collection(db, "images"), {
+          url: downloadURL,
+          userId: userId,
+          createdAt: new Date(),
+        });
+
+        // Update image list with the new image and set it as selected
+        setImages((prevImages) => {
+          const newImages = [...prevImages, downloadURL];
+          setSelectedImage(downloadURL); // Automatically set the new image as selected
+          return newImages;
         });
       }
     );
@@ -68,9 +116,9 @@ function MetadataExtraction() {
   const handleStartOver = () => {
     setFile(null);
     setMetadata(null);
-    setPreviewUrl(null);
     setUploadProgress(0);
     setUploadedUrl("");
+    setSelectedImage(null);
   };
 
   const formatLabel = (label) => {
@@ -158,100 +206,120 @@ function MetadataExtraction() {
   });
 
   return (
-    <div>
-      <Typography variant="h5" align="center" gutterBottom>
-        Metadata Extraction
-      </Typography>
-      {file && (
-        <Grid container justifyContent="center" style={{ marginBottom: 20 }}>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={handleStartOver}
-          >
-            Start Over
-          </Button>
-        </Grid>
-      )}
-      <Grid container spacing={2} alignItems="center">
-        {!file && (
-          <Grid item xs={12}>
-            <div
-              {...getRootProps()}
-              style={{
-                border: "2px dashed #cccccc",
-                padding: "20px",
-                textAlign: "center",
-                cursor: "pointer",
-              }}
-            >
-              <input {...getInputProps()} />
-              <Typography variant="body1">
-                Drag & drop an image here, or click to select one
-              </Typography>
-            </div>
-          </Grid>
-        )}
-        {previewUrl && (
-          <Grid item xs={12}>
-            <Grid container direction="column" alignItems="center">
-              <img
-                src={previewUrl}
-                alt="Selected file"
-                style={{ maxWidth: "200px", maxHeight: "200px" }}
-              />
-              {file && (
-                <Typography variant="subtitle1" align="center">
-                  {file.name}
-                </Typography>
-              )}
-            </Grid>
-          </Grid>
-        )}
+    <Grid container spacing={2}>
+      <Grid item xs={3}>
+        <Paper style={{ padding: 16, height: "100%", overflowY: "auto" }}>
+          <Typography variant="h6" align="center" gutterBottom>
+            Uploaded Images
+          </Typography>
+          <List>
+            {images.map((url, index) => (
+              <ListItem key={index} disablePadding>
+                <ListItemButton onClick={() => setSelectedImage(url)}>
+                  <img
+                    src={url}
+                    alt={`Thumbnail ${index}`}
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "100px",
+                      objectFit: "contain",
+                      marginRight: 10,
+                    }}
+                  />
+                  <ListItemText primary={`Image ${index + 1}`} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
+      </Grid>
+      <Grid item xs={9}>
+        <Typography variant="h5" align="center" gutterBottom>
+          Metadata Extraction
+        </Typography>
         {file && (
-          <Grid item xs={12}>
-            <Grid container spacing={2} justifyContent="center">
-              <Grid item>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() =>
-                    handleMetadataExtraction(uploadedUrl, "recognition")
-                  }
-                  disabled={!uploadedUrl}
-                >
-                  AI Image Recognition
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() =>
-                    handleMetadataExtraction(uploadedUrl, "metadata")
-                  }
-                  disabled={!uploadedUrl}
-                >
-                  Extract Image Metadata Tool
-                </Button>
-              </Grid>
-            </Grid>
-            {uploadProgress > 0 && (
-              <Typography
-                variant="body2"
-                align="center"
-                style={{ marginTop: 10 }}
-              >
-                Upload Progress: {uploadProgress.toFixed(2)}%
-              </Typography>
-            )}
+          <Grid container justifyContent="center" style={{ marginBottom: 20 }}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleStartOver}
+            >
+              Start Over
+            </Button>
           </Grid>
         )}
-        <Grid item xs={12}>
-          {renderMetadataDiv()}
+        <Grid container spacing={2} alignItems="center">
+          {!file && (
+            <Grid item xs={12}>
+              <div
+                {...getRootProps()}
+                style={{
+                  border: "2px dashed #cccccc",
+                  padding: "20px",
+                  textAlign: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <input {...getInputProps()} />
+                <Typography variant="body1">
+                  Drag & drop an image here, or click to select one
+                </Typography>
+              </div>
+            </Grid>
+          )}
+          {selectedImage && (
+            <Grid item xs={12} style={{ marginTop: 20 }}>
+              <Typography variant="h6" align="center">
+                Selected Image
+              </Typography>
+              <div style={{ textAlign: "center" }}>
+                <img
+                  src={selectedImage}
+                  alt="Selected"
+                  style={{
+                    maxHeight: "400px",
+                    objectFit: "contain",
+                    border: "2px solid #000",
+                  }}
+                />
+              </div>
+              <Grid
+                container
+                spacing={2}
+                justifyContent="center"
+                style={{ marginTop: 20 }}
+              >
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() =>
+                      handleMetadataExtraction(selectedImage, "recognition")
+                    }
+                  >
+                    AI Image Recognition
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() =>
+                      handleMetadataExtraction(selectedImage, "metadata")
+                    }
+                  >
+                    Extract Image Metadata
+                  </Button>
+                </Grid>
+              </Grid>
+            </Grid>
+          )}
+          <Grid item xs={12}>
+            {renderMetadataDiv()}
+          </Grid>
         </Grid>
       </Grid>
-    </div>
+    </Grid>
   );
 }
 
