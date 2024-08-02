@@ -8,14 +8,28 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  IconButton,
 } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { collection, getDocs, addDoc, query, where } from "firebase/firestore";
+import {
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  where,
+  deleteDoc,
+} from "firebase/firestore";
 import { storage, auth, db } from "../firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 function MetadataExtraction() {
   const [file, setFile] = useState(null);
@@ -82,13 +96,6 @@ function MetadataExtraction() {
         console.log("File available at", downloadURL);
         setUploadedUrl(downloadURL);
 
-        // Save the image URL to Firestore
-        await addDoc(collection(db, "images"), {
-          url: downloadURL,
-          userId: userId,
-          createdAt: new Date(),
-        });
-
         // Update image list with the new image and set it as selected
         setImages((prevImages) => {
           const newImages = [...prevImages, downloadURL];
@@ -110,6 +117,9 @@ function MetadataExtraction() {
 
       const response = await axios.post(endpoint, { url });
       setMetadata(response.data.metadata);
+
+      // Show success toast notification
+      toast.success(response.data.message || "Operation successful");
     } catch (error) {
       console.error(`Error extracting ${type} metadata:`, error);
 
@@ -209,6 +219,28 @@ function MetadataExtraction() {
     );
   };
 
+  const deleteImage = async (imageUrl) => {
+    try {
+      const userId = auth.currentUser ? auth.currentUser.uid : "guest";
+      const fileRef = ref(
+        storage,
+        `images/${userId}/${decodeURIComponent(
+          imageUrl.split("/").pop().split("?")[0]
+        )}`
+      );
+      await deleteObject(fileRef);
+
+      // Update local state
+      setImages((prevImages) => prevImages.filter((url) => url !== imageUrl));
+      if (selectedImage === imageUrl) setSelectedImage(null);
+
+      toast.success("Image successfully deleted!");
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      toast.error("Failed to delete image.");
+    }
+  };
+
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: "image/*",
@@ -238,6 +270,13 @@ function MetadataExtraction() {
                       }}
                     />
                     <ListItemText primary={`Image ${index + 1}`} />
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => deleteImage(url)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                   </ListItemButton>
                 </ListItem>
               ))}
@@ -248,21 +287,6 @@ function MetadataExtraction() {
           <Typography variant="h5" align="center" gutterBottom>
             Metadata Extraction
           </Typography>
-          {file && (
-            <Grid
-              container
-              justifyContent="center"
-              style={{ marginBottom: 20 }}
-            >
-              <Button
-                variant="outlined"
-                color="secondary"
-                onClick={handleStartOver}
-              >
-                Start Over
-              </Button>
-            </Grid>
-          )}
           <Grid container spacing={2} alignItems="center">
             {!file && (
               <Grid item xs={12}>
@@ -284,9 +308,6 @@ function MetadataExtraction() {
             )}
             {selectedImage && (
               <Grid item xs={12} style={{ marginTop: 20 }}>
-                <Typography variant="h6" align="center">
-                  Selected Image
-                </Typography>
                 <div style={{ textAlign: "center" }}>
                   <img
                     src={selectedImage}
