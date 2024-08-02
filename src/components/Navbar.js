@@ -1,18 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { AppBar, Toolbar, Typography, Button } from "@mui/material";
+import React from "react";
+import { AppBar, Toolbar, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase";
+import { useAuth } from "../hooks/useAuth";
+import AuthNav from "./AuthNav";
+import PublicNav from "./PublicNav";
 
 const Navbar = () => {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
+  const user = useAuth();
 
   return (
     <AppBar position="static">
@@ -22,48 +16,7 @@ const Navbar = () => {
             Alexi's World
           </Link>
         </Typography>
-        {user ? (
-          <>
-            <Button color="inherit">
-              <Link
-                to="/home"
-                style={{ color: "inherit", textDecoration: "none" }}
-              >
-                Extractor Tool
-              </Link>
-            </Button>
-            <Button color="inherit" onClick={() => auth.signOut()}>
-              Logout
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button color="inherit">
-              <Link
-                to="/login"
-                style={{ color: "inherit", textDecoration: "none" }}
-              >
-                Login
-              </Link>
-            </Button>
-            <Button color="inherit">
-              <Link
-                to="/signup"
-                style={{ color: "inherit", textDecoration: "none" }}
-              >
-                Signup
-              </Link>
-            </Button>
-            <Button color="inherit">
-              <Link
-                to="/request-access"
-                style={{ color: "inherit", textDecoration: "none" }}
-              >
-                Request Access
-              </Link>
-            </Button>
-          </>
-        )}
+        {user ? <AuthNav /> : <PublicNav />}
       </Toolbar>
     </AppBar>
   );
