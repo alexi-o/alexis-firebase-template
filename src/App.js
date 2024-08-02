@@ -16,7 +16,7 @@ import RequestAccess from "./components/RequestAccess";
 import Navbar from "./components/Navbar";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import theme from "./theme"; // Import the theme
+import theme from "./theme";
 
 function App() {
   const [user, setUser] = useState(null);
