@@ -9,6 +9,8 @@ import {
   ListItemButton,
   ListItemText,
   IconButton,
+  TextField,
+  Chip,
 } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
@@ -24,7 +26,9 @@ import {
   addDoc,
   query,
   where,
+  updateDoc,
   deleteDoc,
+  doc,
 } from "firebase/firestore";
 import { storage, auth, db } from "../firebase";
 import { ToastContainer, toast } from "react-toastify";
@@ -32,12 +36,16 @@ import "react-toastify/dist/ReactToastify.css";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 function MetadataExtraction() {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [metadata, setMetadata] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadedUrl, setUploadedUrl] = useState("");
+  const [uploadProgress, setUploadProgress] = useState({});
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [formData, setFormData] = useState({
+    description: "",
+    tags: [],
+  });
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -51,10 +59,19 @@ function MetadataExtraction() {
         );
 
         const querySnapshot = await getDocs(imagesQuery);
-        const fetchedImages = querySnapshot.docs.map((doc) => doc.data().url);
+        const fetchedImages = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          tags: doc.data().tags || [],
+        }));
         setImages(fetchedImages);
         if (fetchedImages.length > 0) {
-          setSelectedImage(fetchedImages[fetchedImages.length - 1]); // Set the most recent image as selected
+          const mostRecentImage = fetchedImages[fetchedImages.length - 1];
+          setSelectedImage(mostRecentImage);
+          setFormData({
+            description: mostRecentImage.description || "",
+            tags: mostRecentImage.tags || [],
+          });
         }
       } catch (error) {
         console.error("Error fetching images:", error);
@@ -65,11 +82,9 @@ function MetadataExtraction() {
   }, []);
 
   const onDrop = useCallback((acceptedFiles) => {
-    const selectedFile = acceptedFiles[0];
-    setFile(selectedFile);
-
-    // Start upload immediately
-    handleUpload(selectedFile);
+    setFiles(acceptedFiles);
+    // Start upload immediately for each file
+    acceptedFiles.forEach((file) => handleUpload(file));
   }, []);
 
   const handleUpload = (file) => {
@@ -85,23 +100,50 @@ function MetadataExtraction() {
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-        console.log("Upload is " + progress + "% done");
+        setUploadProgress((prevProgress) => ({
+          ...prevProgress,
+          [file.name]: progress,
+        }));
+        console.log(`Upload is ${progress}% done for ${file.name}`);
       },
       (error) => {
         console.error("Error uploading file:", error);
       },
       async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        console.log("File available at", downloadURL);
-        setUploadedUrl(downloadURL);
+        console.log(`File available at ${downloadURL}`);
+
+        // Create image data object
+        const imageData = {
+          name: file.name,
+          description: "",
+          tags: [],
+          metadata: {},
+          url: downloadURL,
+          userId,
+          createdAt: new Date(),
+        };
 
         // Update image list with the new image and set it as selected
         setImages((prevImages) => {
-          const newImages = [...prevImages, downloadURL];
-          setSelectedImage(downloadURL); // Automatically set the new image as selected
+          const newImages = [...prevImages, imageData];
+          setSelectedImage(imageData); // Automatically set the new image as selected
+          setFormData({
+            description: "",
+            tags: [],
+          });
+          setIsDirty(false);
           return newImages;
         });
+
+        // Add the new image to Firestore
+        try {
+          await addDoc(collection(db, "images"), imageData);
+          toast.success("Image successfully uploaded!");
+        } catch (error) {
+          console.error("Error adding document: ", error);
+          toast.error("Failed to save image metadata.");
+        }
       }
     );
   };
@@ -133,11 +175,15 @@ function MetadataExtraction() {
   };
 
   const handleStartOver = () => {
-    setFile(null);
+    setFiles([]);
     setMetadata(null);
-    setUploadProgress(0);
-    setUploadedUrl("");
+    setUploadProgress({});
     setSelectedImage(null);
+    setFormData({
+      description: "",
+      tags: [],
+    });
+    setIsDirty(false);
   };
 
   const formatLabel = (label) => {
@@ -174,22 +220,61 @@ function MetadataExtraction() {
     );
   };
 
+  const updateImageData = async () => {
+    if (!selectedImage) return;
+
+    try {
+      const updatedData = {
+        description: formData.description,
+        tags: formData.tags,
+      };
+
+      const imageRef = doc(db, "images", selectedImage.id);
+      await updateDoc(imageRef, updatedData);
+
+      // Update local state
+      setImages((prevImages) =>
+        prevImages.map((img) =>
+          img.id === selectedImage.id ? { ...img, ...updatedData } : img
+        )
+      );
+
+      toast.success("Image data successfully updated!");
+      setIsDirty(false);
+    } catch (error) {
+      console.error("Error updating image data:", error);
+      toast.error("Failed to update image data.");
+    }
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+    setIsDirty(true);
+  };
+
+  const addTag = (tag) => {
+    if (!formData.tags.includes(tag)) {
+      setFormData((prevData) => ({
+        ...prevData,
+        tags: [...prevData.tags, tag],
+      }));
+      setIsDirty(true);
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      tags: prevData.tags.filter((tag) => tag !== tagToRemove),
+    }));
+    setIsDirty(true);
+  };
+
   const renderMetadataDiv = () => {
     if (!metadata) return null;
-
-    let metadataText = "";
-
-    if (Array.isArray(metadata)) {
-      metadata.forEach(([id, label, probability]) => {
-        metadataText += `${formatLabel(label)}: ${(probability * 100).toFixed(
-          2
-        )}%\n`;
-      });
-    } else {
-      for (const [key, value] of Object.entries(metadata)) {
-        metadataText += `${key}: ${value.toString()}\n`;
-      }
-    }
 
     return (
       <Paper style={{ padding: 16, marginBottom: 16 }}>
@@ -203,7 +288,27 @@ function MetadataExtraction() {
             lineHeight: "1.5",
           }}
         >
-          {metadataText}
+          {Array.isArray(metadata)
+            ? metadata.map(([id, label, probability]) => (
+                <Chip
+                  key={id}
+                  label={`${formatLabel(label)}: ${(probability * 100).toFixed(
+                    2
+                  )}%`}
+                  onClick={() => addTag(formatLabel(label))}
+                  clickable
+                  style={{ margin: "4px" }}
+                />
+              ))
+            : Object.entries(metadata).map(([key, value]) => (
+                <Chip
+                  key={key}
+                  label={`${key}: ${value}`}
+                  onClick={() => addTag(key)}
+                  clickable
+                  style={{ margin: "4px" }}
+                />
+              ))}
         </div>
         <Grid container justifyContent="center">
           <Button
@@ -219,7 +324,7 @@ function MetadataExtraction() {
     );
   };
 
-  const deleteImage = async (imageUrl) => {
+  const deleteImage = async (imageId, imageUrl) => {
     try {
       const userId = auth.currentUser ? auth.currentUser.uid : "guest";
       const fileRef = ref(
@@ -230,9 +335,12 @@ function MetadataExtraction() {
       );
       await deleteObject(fileRef);
 
+      // Delete from Firestore
+      await deleteDoc(doc(db, "images", imageId));
+
       // Update local state
-      setImages((prevImages) => prevImages.filter((url) => url !== imageUrl));
-      if (selectedImage === imageUrl) setSelectedImage(null);
+      setImages((prevImages) => prevImages.filter((img) => img.id !== imageId));
+      if (selectedImage && selectedImage.id === imageId) setSelectedImage(null);
 
       toast.success("Image successfully deleted!");
     } catch (error) {
@@ -256,11 +364,22 @@ function MetadataExtraction() {
               Uploaded Images
             </Typography>
             <List>
-              {images.map((url, index) => (
-                <ListItem key={index} disablePadding>
-                  <ListItemButton onClick={() => setSelectedImage(url)}>
+              {images.map((image, index) => (
+                <ListItem
+                  key={image.id}
+                  disablePadding
+                  onClick={() => {
+                    setSelectedImage(image);
+                    setFormData({
+                      description: image.description || "",
+                      tags: image.tags || [],
+                    });
+                    setIsDirty(false);
+                  }}
+                >
+                  <ListItemButton>
                     <img
-                      src={url}
+                      src={image.url}
                       alt={`Thumbnail ${index}`}
                       style={{
                         maxWidth: "100%",
@@ -269,14 +388,6 @@ function MetadataExtraction() {
                         marginRight: 10,
                       }}
                     />
-                    <ListItemText primary={`Image ${index + 1}`} />
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => deleteImage(url)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
                   </ListItemButton>
                 </ListItem>
               ))}
@@ -288,7 +399,7 @@ function MetadataExtraction() {
             Metadata Extraction
           </Typography>
           <Grid container spacing={2} alignItems="center">
-            {!file && (
+            {files.length === 0 && (
               <Grid item xs={12}>
                 <div
                   {...getRootProps()}
@@ -301,7 +412,7 @@ function MetadataExtraction() {
                 >
                   <input {...getInputProps()} />
                   <Typography variant="body1">
-                    Drag & drop an image here, or click to select one
+                    Drag & drop images here, or click to select
                   </Typography>
                 </div>
               </Grid>
@@ -310,7 +421,7 @@ function MetadataExtraction() {
               <Grid item xs={12} style={{ marginTop: 20 }}>
                 <div style={{ textAlign: "center" }}>
                   <img
-                    src={selectedImage}
+                    src={selectedImage.url}
                     alt="Selected"
                     style={{
                       maxHeight: "400px",
@@ -319,33 +430,73 @@ function MetadataExtraction() {
                     }}
                   />
                 </div>
-                <Grid
-                  container
-                  spacing={2}
-                  justifyContent="center"
-                  style={{ marginTop: 20 }}
-                >
-                  <Grid item>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() =>
-                        handleMetadataExtraction(selectedImage, "recognition")
+                <Grid container spacing={2} style={{ marginTop: 20 }}>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Description"
+                      fullWidth
+                      value={formData.description}
+                      onChange={(e) =>
+                        handleInputChange("description", e.target.value)
                       }
-                    >
-                      AI Image Recognition
-                    </Button>
+                      variant="outlined"
+                      margin="normal"
+                    />
+                    <Typography variant="body2" style={{ marginTop: 16 }}>
+                      Tags:
+                    </Typography>
+                    <div>
+                      {formData.tags.map((tag, index) => (
+                        <Chip
+                          key={index}
+                          label={tag}
+                          onClick={() => removeTag(tag)}
+                          clickable
+                          color="primary"
+                          style={{ margin: "4px" }}
+                        />
+                      ))}
+                    </div>
                   </Grid>
-                  <Grid item>
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      onClick={() =>
-                        handleMetadataExtraction(selectedImage, "metadata")
-                      }
-                    >
-                      Extract Image Metadata
-                    </Button>
+                  <Grid container spacing={2} justifyContent="center">
+                    <Grid item>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() =>
+                          handleMetadataExtraction(
+                            selectedImage.url,
+                            "recognition"
+                          )
+                        }
+                      >
+                        AI Image Recognition
+                      </Button>
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() =>
+                          handleMetadataExtraction(
+                            selectedImage.url,
+                            "metadata"
+                          )
+                        }
+                      >
+                        Extract Image Metadata
+                      </Button>
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        onClick={updateImageData}
+                        disabled={!isDirty}
+                      >
+                        Save Changes
+                      </Button>
+                    </Grid>
                   </Grid>
                 </Grid>
               </Grid>
