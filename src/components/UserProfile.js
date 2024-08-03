@@ -13,11 +13,8 @@ const UserProfile = () => {
     const fetchUserDetails = async () => {
       try {
         if (auth.currentUser) {
-          console.info("auth.currentUser", auth.currentUser);
           const userDoc = doc(db, "users", auth.currentUser.uid);
           const userSnap = await getDoc(userDoc);
-          console.info("userDoc", userDoc);
-          console.info("userSnap", userSnap);
           if (userSnap.exists()) {
             setUserDetails(userSnap.data());
           }
