@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, TextField } from "@mui/material";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +13,7 @@ const SignUp = () => {
   const handleSignUp = async () => {
     setError("");
     try {
+      // Check the invitation code
       const docRef = doc(db, "invitations", inviteCode);
       const docSnap = await getDoc(docRef);
 
@@ -21,8 +22,22 @@ const SignUp = () => {
         return;
       }
 
-      await createUserWithEmailAndPassword(auth, email, password);
+      // Create the user account
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
 
+      // Create a new document in Firestore for the user with default role
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        role: "user", // Default role
+        createdAt: new Date(),
+      });
+
+      // Mark the invitation code as used
       await updateDoc(docRef, { used: true });
 
       console.log("User signed up successfully.");
