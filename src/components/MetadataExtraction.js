@@ -7,8 +7,6 @@ import {
   List,
   ListItem,
   ListItemButton,
-  ListItemText,
-  IconButton,
   TextField,
   Chip,
 } from "@mui/material";
@@ -33,7 +31,6 @@ import {
 import { storage, auth, db } from "../firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 function MetadataExtraction() {
   const [files, setFiles] = useState([]);
@@ -356,7 +353,7 @@ function MetadataExtraction() {
 
   return (
     <div>
-      <ToastContainer />
+      <ToastContainer position="bottom-left" autoClose="2000" />
       <Grid container spacing={2}>
         <Grid item xs={3}>
           <Paper style={{ padding: 16, height: "100%", overflowY: "auto" }}>

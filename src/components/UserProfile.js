@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { auth, db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const UserProfile = ({ setCurrentTheme }) => {
@@ -28,7 +28,7 @@ const UserProfile = ({ setCurrentTheme }) => {
           const userSnap = await getDoc(userDoc);
           if (userSnap.exists()) {
             setUserDetails(userSnap.data());
-            setCurrentTheme(userSnap.data().theme); // Set theme when user data is loaded
+            setCurrentTheme(userSnap.data().theme);
           }
         }
       } catch (error) {
@@ -54,6 +54,7 @@ const UserProfile = ({ setCurrentTheme }) => {
     try {
       const userDoc = doc(db, "users", auth.currentUser.uid);
       await updateDoc(userDoc, { theme: newTheme });
+      console.info("beans");
       toast.success("Theme updated successfully.");
     } catch (error) {
       console.error("Error updating theme:", error);
@@ -78,6 +79,7 @@ const UserProfile = ({ setCurrentTheme }) => {
 
   return (
     <Paper style={{ padding: 16, maxWidth: 600, margin: "auto" }}>
+      <ToastContainer position="bottom-left" autoClose="2000" />
       <Typography variant="h4" gutterBottom>
         User Profile
       </Typography>
