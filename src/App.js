@@ -15,26 +15,45 @@ import Login from "./components/Login";
 import RequestAccess from "./components/RequestAccess";
 import Navbar from "./components/Navbar";
 import UserProfile from "./components/UserProfile";
-import Admin from "./components/Admin"; // Import Admin component
-import { auth } from "./firebase";
+import Admin from "./components/Admin";
+
+import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import theme from "./theme";
-import useUserRole from "./hooks/useUserRole"; // Import custom hook
+import { doc, getDoc } from "firebase/firestore";
+
+import { darkTheme, lightTheme } from "./theme";
+import useUserRole from "./hooks/useUserRole";
 
 function App() {
   const [user, setUser] = useState(null);
-  const role = useUserRole(); // Fetch user role
+  const [currentTheme, setCurrentTheme] = useState("dark");
+  const role = useUserRole();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+
+      if (currentUser) {
+        try {
+          const userDoc = doc(db, "users", currentUser.uid);
+          const userSnap = await getDoc(userDoc);
+
+          if (userSnap.exists() && userSnap.data().theme) {
+            setCurrentTheme(userSnap.data().theme);
+          }
+        } catch (error) {
+          console.error("Error fetching user theme:", error);
+        }
+      }
     });
 
     return () => unsubscribe();
   }, []);
 
+  const appliedTheme = currentTheme === "dark" ? darkTheme : lightTheme;
+
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={appliedTheme}>
       <CssBaseline />
       <Router>
         <Navbar />
@@ -42,7 +61,7 @@ function App() {
           maxWidth="md"
           className="App"
           style={{
-            backgroundColor: theme.palette.background.default,
+            backgroundColor: appliedTheme.palette.background.default,
             minHeight: "100vh",
           }}
         >
@@ -59,7 +78,13 @@ function App() {
             />
             <Route
               path="/profile"
-              element={user ? <UserProfile /> : <Navigate to="/login" />}
+              element={
+                user ? (
+                  <UserProfile setCurrentTheme={setCurrentTheme} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
             />
             <Route
               path="/signup"

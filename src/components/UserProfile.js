@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Button, Typography, Paper } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import { auth, db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const UserProfile = () => {
-  const [userDetails, setUserDetails] = useState({ email: "", name: "" });
+const UserProfile = ({ setCurrentTheme }) => {
+  const [userDetails, setUserDetails] = useState({
+    email: "",
+    name: "",
+    theme: "dark",
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,6 +28,7 @@ const UserProfile = () => {
           const userSnap = await getDoc(userDoc);
           if (userSnap.exists()) {
             setUserDetails(userSnap.data());
+            setCurrentTheme(userSnap.data().theme); // Set theme when user data is loaded
           }
         }
       } catch (error) {
@@ -28,10 +40,25 @@ const UserProfile = () => {
     };
 
     fetchUserDetails();
-  }, []);
+  }, [setCurrentTheme]);
 
   const handleChange = (e) => {
     setUserDetails({ ...userDetails, [e.target.name]: e.target.value });
+  };
+
+  const handleThemeChange = async (event) => {
+    const newTheme = event.target.value;
+    setUserDetails({ ...userDetails, theme: newTheme });
+    setCurrentTheme(newTheme);
+
+    try {
+      const userDoc = doc(db, "users", auth.currentUser.uid);
+      await updateDoc(userDoc, { theme: newTheme });
+      toast.success("Theme updated successfully.");
+    } catch (error) {
+      console.error("Error updating theme:", error);
+      toast.error("Failed to update theme.");
+    }
   };
 
   const handleSave = async () => {
@@ -73,6 +100,17 @@ const UserProfile = () => {
         margin="normal"
         variant="outlined"
       />
+      <Select
+        value={userDetails.theme}
+        onChange={handleThemeChange}
+        fullWidth
+        margin="normal"
+        variant="outlined"
+      >
+        <MenuItem value="dark">Dark Theme</MenuItem>
+        <MenuItem value="light">Light Theme</MenuItem>
+        {/* Add more themes as needed */}
+      </Select>
       <Button
         variant="contained"
         color="primary"
