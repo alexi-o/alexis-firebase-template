@@ -7,6 +7,10 @@ import {
   ListItem,
   ListItemText,
   Button,
+  Grid,
+  Tabs,
+  Tab,
+  Box,
 } from "@mui/material";
 import { db } from "../firebase";
 import {
@@ -20,6 +24,8 @@ import { toast } from "react-toastify";
 
 const Admin = () => {
   const [requests, setRequests] = useState([]);
+  const [invitations, setInvitations] = useState([]);
+  const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -36,7 +42,22 @@ const Admin = () => {
       }
     };
 
+    const fetchInvitations = async () => {
+      try {
+        const invitationsCollection = collection(db, "invitations");
+        const invitationSnapshot = await getDocs(invitationsCollection);
+        const invitationList = invitationSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setInvitations(invitationList);
+      } catch (error) {
+        console.error("Error fetching invitations:", error);
+      }
+    };
+
     fetchRequests();
+    fetchInvitations();
   }, []);
 
   const handleApprove = async (request) => {
@@ -45,7 +66,7 @@ const Admin = () => {
       const requestDoc = doc(db, "accessRequests", request.id);
 
       // Update request status to approved
-      await updateDoc(requestDoc, { status: "approved" });
+      await updateDoc(requestDoc, { status: "approved", invitationCode });
 
       // Add invitation code to Firestore
       await addDoc(collection(db, "invitations"), {
@@ -57,7 +78,9 @@ const Admin = () => {
 
       setRequests((prevRequests) =>
         prevRequests.map((req) =>
-          req.id === request.id ? { ...req, status: "approved" } : req
+          req.id === request.id
+            ? { ...req, status: "approved", invitationCode }
+            : req
         )
       );
 
@@ -72,31 +95,71 @@ const Admin = () => {
     return Math.random().toString(36).substring(2, 10).toUpperCase();
   };
 
+  const handleTabChange = (event, newValue) => {
+    setTabIndex(newValue);
+  };
+
   return (
     <Container>
       <Typography variant="h4" gutterBottom>
-        Admin - Access Requests
+        Admin
       </Typography>
       <Paper style={{ padding: 16 }}>
-        <List>
-          {requests.map((request) => (
-            <ListItem key={request.id}>
-              <ListItemText
-                primary={request.email}
-                secondary={`Status: ${request.status || "pending"}`}
-              />
-              {request.status === "pending" && (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleApprove(request)}
-                >
-                  Approve
-                </Button>
-              )}
-            </ListItem>
-          ))}
-        </List>
+        <Tabs
+          value={tabIndex}
+          onChange={handleTabChange}
+          indicatorColor="primary"
+          textColor="primary"
+          centered
+        >
+          <Tab label="Access Requests" />
+          <Tab label="Invitations" />
+        </Tabs>
+        <Box hidden={tabIndex !== 0}>
+          <List>
+            {requests.map((request) => (
+              <ListItem key={request.id} divider>
+                <Grid container alignItems="center">
+                  <Grid item xs={8}>
+                    <ListItemText
+                      primary={request.email}
+                      secondary={`Status: ${request.status || "pending"}${
+                        request.invitationCode
+                          ? `, Code: ${request.invitationCode}`
+                          : ""
+                      }`}
+                    />
+                  </Grid>
+                  <Grid item xs={4}>
+                    {request.status === "pending" && (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleApprove(request)}
+                      >
+                        Approve
+                      </Button>
+                    )}
+                  </Grid>
+                </Grid>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+        <Box hidden={tabIndex !== 1}>
+          <List>
+            {invitations.map((invitation) => (
+              <ListItem key={invitation.id} divider>
+                <ListItemText
+                  primary={invitation.email}
+                  secondary={`Code: ${invitation.code}, Used: ${
+                    invitation.used ? "Yes" : "No"
+                  }`}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
       </Paper>
     </Container>
   );
