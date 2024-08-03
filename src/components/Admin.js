@@ -9,7 +9,14 @@ import {
   Button,
 } from "@mui/material";
 import { db } from "../firebase";
-import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+  addDoc,
+} from "firebase/firestore";
+import { toast } from "react-toastify";
 
 const Admin = () => {
   const [requests, setRequests] = useState([]);
@@ -32,36 +39,37 @@ const Admin = () => {
     fetchRequests();
   }, []);
 
-  const handleApprove = async (requestId) => {
+  const handleApprove = async (request) => {
     try {
-      const requestDoc = doc(db, "accessRequests", requestId);
+      const invitationCode = generateInvitationCode();
+      const requestDoc = doc(db, "accessRequests", request.id);
+
+      // Update request status to approved
       await updateDoc(requestDoc, { status: "approved" });
+
+      // Add invitation code to Firestore
+      await addDoc(collection(db, "invitations"), {
+        email: request.email,
+        code: invitationCode,
+        used: false,
+        createdAt: new Date(),
+      });
+
       setRequests((prevRequests) =>
-        prevRequests.map((request) =>
-          request.id === requestId
-            ? { ...request, status: "approved" }
-            : request
+        prevRequests.map((req) =>
+          req.id === request.id ? { ...req, status: "approved" } : req
         )
       );
+
+      toast.success(`Request approved. Invitation code: ${invitationCode}`);
     } catch (error) {
       console.error("Error approving request:", error);
+      toast.error("Failed to approve request.");
     }
   };
 
-  const handleReject = async (requestId) => {
-    try {
-      const requestDoc = doc(db, "accessRequests", requestId);
-      await updateDoc(requestDoc, { status: "rejected" });
-      setRequests((prevRequests) =>
-        prevRequests.map((request) =>
-          request.id === requestId
-            ? { ...request, status: "rejected" }
-            : request
-        )
-      );
-    } catch (error) {
-      console.error("Error rejecting request:", error);
-    }
+  const generateInvitationCode = () => {
+    return Math.random().toString(36).substring(2, 10).toUpperCase();
   };
 
   return (
@@ -77,23 +85,15 @@ const Admin = () => {
                 primary={request.email}
                 secondary={`Status: ${request.status || "pending"}`}
               />
-              <Button
-                variant="contained"
-                color="primary"
-                disabled={request.status === "approved"}
-                onClick={() => handleApprove(request.id)}
-                style={{ marginRight: 8 }}
-              >
-                Approve
-              </Button>
-              <Button
-                variant="contained"
-                color="secondary"
-                disabled={request.status === "rejected"}
-                onClick={() => handleReject(request.id)}
-              >
-                Reject
-              </Button>
+              {request.status === "pending" && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleApprove(request)}
+                >
+                  Approve
+                </Button>
+              )}
             </ListItem>
           ))}
         </List>

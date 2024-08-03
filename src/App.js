@@ -7,20 +7,23 @@ import {
 } from "react-router-dom";
 import { Container } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-
 import CssBaseline from "@mui/material/CssBaseline";
+
 import MetadataExtraction from "./components/MetadataExtraction";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import RequestAccess from "./components/RequestAccess";
 import Navbar from "./components/Navbar";
 import UserProfile from "./components/UserProfile";
+import Admin from "./components/Admin"; // Import Admin component
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import theme from "./theme";
+import useUserRole from "./hooks/useUserRole"; // Import custom hook
 
 function App() {
   const [user, setUser] = useState(null);
+  const role = useUserRole(); // Fetch user role
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -58,7 +61,6 @@ function App() {
               path="/profile"
               element={user ? <UserProfile /> : <Navigate to="/login" />}
             />
-
             <Route
               path="/signup"
               element={user ? <Navigate to="/home" /> : <SignUp />}
@@ -67,6 +69,12 @@ function App() {
             <Route
               path="/home"
               element={user ? <MetadataExtraction /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/admin"
+              element={
+                user && role === "admin" ? <Admin /> : <Navigate to="/home" />
+              }
             />
           </Routes>
         </Container>

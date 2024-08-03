@@ -35,11 +35,16 @@ const SignUp = () => {
         return;
       }
 
-      // Check the invitation code
-      const docRef = doc(db, "invitations", inviteCode);
-      const docSnap = await getDoc(docRef);
+      // Check the invitation code in the 'invitations' collection
+      const invitationsRef = collection(db, "invitations");
+      const inviteQuery = query(
+        invitationsRef,
+        where("code", "==", inviteCode),
+        where("used", "==", false)
+      );
+      const inviteSnapshot = await getDocs(inviteQuery);
 
-      if (!docSnap.exists() || docSnap.data().used) {
+      if (inviteSnapshot.empty) {
         setError("Invalid or already used invite code.");
         toast.error("Invalid or already used invite code.");
         return;
@@ -61,7 +66,8 @@ const SignUp = () => {
       });
 
       // Mark the invitation code as used
-      await updateDoc(docRef, { used: true });
+      const inviteDocRef = inviteSnapshot.docs[0].ref;
+      await updateDoc(inviteDocRef, { used: true });
 
       toast.success("User signed up successfully.");
       console.log("User signed up successfully.");
