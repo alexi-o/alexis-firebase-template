@@ -14,6 +14,7 @@ import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import RequestAccess from "./components/RequestAccess";
 import Navbar from "./components/Navbar";
+import UserProfile from "./components/UserProfile";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import theme from "./theme";
@@ -53,6 +54,11 @@ function App() {
               path="/login"
               element={user ? <Navigate to="/home" /> : <Login />}
             />
+            <Route
+              path="/profile"
+              element={user ? <UserProfile /> : <Navigate to="/login" />}
+            />
+
             <Route
               path="/signup"
               element={user ? <Navigate to="/home" /> : <SignUp />}

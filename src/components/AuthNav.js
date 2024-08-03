@@ -16,6 +16,14 @@ const AuthenticatedNav = () => {
           Extractor Tool
         </Link>
       </Button>
+      <Button color="inherit">
+        <Link
+          to="/profile"
+          style={{ color: theme.palette.text.primary, textDecoration: "none" }}
+        >
+          Profile
+        </Link>
+      </Button>
       <Button color="inherit" onClick={() => auth.signOut()}>
         <span style={{ color: theme.palette.text.primary }}>Logout</span>
       </Button>
