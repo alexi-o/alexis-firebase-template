@@ -1,16 +1,6 @@
+// MetadataExtraction.js
 import React, { useState, useCallback, useEffect } from "react";
-import {
-  Button,
-  Grid,
-  Typography,
-  Paper,
-  List,
-  ListItem,
-  ListItemButton,
-  TextField,
-  Chip,
-} from "@mui/material";
-import { useDropzone } from "react-dropzone";
+import { Grid, Typography } from "@mui/material";
 import axios from "axios";
 import {
   ref,
@@ -31,11 +21,14 @@ import {
 import { storage, auth, db } from "../firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ImageList from "./ImageList";
+import ImageViewer from "./ImageViewer";
+import ImageUploader from "./ImageUploader";
+import MetadataDisplay from "./MetadataDisplay";
 
 function MetadataExtraction() {
   const [files, setFiles] = useState([]);
   const [metadata, setMetadata] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState({});
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [formData, setFormData] = useState({
@@ -81,6 +74,13 @@ function MetadataExtraction() {
     acceptedFiles.forEach((file) => handleUpload(file));
   }, []);
 
+  const formatLabel = (label) => {
+    return label
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const handleUpload = (file) => {
     if (!file) return;
 
@@ -91,15 +91,7 @@ function MetadataExtraction() {
 
     uploadTask.on(
       "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress((prevProgress) => ({
-          ...prevProgress,
-          [file.name]: progress,
-        }));
-        console.log(`Upload is ${progress}% done for ${file.name}`);
-      },
+      null,
       (error) => {
         console.error("Error uploading file:", error);
       },
@@ -161,13 +153,6 @@ function MetadataExtraction() {
         toast.error("Error: Unable to process request");
       }
     }
-  };
-
-  const formatLabel = (label) => {
-    return label
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
   };
 
   const copyToClipboard = () => {
@@ -249,57 +234,6 @@ function MetadataExtraction() {
     setIsDirty(true);
   };
 
-  const renderMetadataDiv = () => {
-    if (!metadata) return null;
-
-    return (
-      <Paper style={{ padding: "1rem", marginBottom: "1rem" }}>
-        <div
-          style={{
-            whiteSpace: "pre-wrap",
-            width: "100%",
-            backgroundColor: "#f5f5f5",
-            fontFamily: "inherit",
-            fontSize: "0.9rem",
-            lineHeight: "1.5",
-          }}
-        >
-          {Array.isArray(metadata)
-            ? metadata.map(([id, label, probability]) => (
-                <Chip
-                  key={id}
-                  label={`${formatLabel(label)}: ${(probability * 100).toFixed(
-                    2
-                  )}%`}
-                  onClick={() => addTag(formatLabel(label))}
-                  clickable
-                  style={{ margin: "0.25rem" }}
-                />
-              ))
-            : Object.entries(metadata).map(([key, value]) => (
-                <Chip
-                  key={key}
-                  label={`${key}: ${value}`}
-                  onClick={() => addTag(key)}
-                  clickable
-                  style={{ margin: "0.25rem" }}
-                />
-              ))}
-        </div>
-        <Grid container justifyContent="center">
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={copyToClipboard}
-            style={{ marginTop: "1rem" }}
-          >
-            Copy to Clipboard
-          </Button>
-        </Grid>
-      </Paper>
-    );
-  };
-
   const deleteImage = async (imageId, imageUrl) => {
     try {
       const userId = auth.currentUser ? auth.currentUser.uid : "guest";
@@ -321,50 +255,12 @@ function MetadataExtraction() {
     }
   };
 
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: "image/*",
-  });
-
   return (
     <div>
       <ToastContainer position="bottom-left" autoClose={2000} />
       <Grid container spacing={2}>
         <Grid item xs={12} md={3}>
-          <Paper style={{ padding: "1rem", height: "100%", overflowY: "auto" }}>
-            <Typography variant="h6" align="center" gutterBottom>
-              Uploaded Images
-            </Typography>
-            <List>
-              {images.map((image, index) => (
-                <ListItem
-                  key={image.id}
-                  disablePadding
-                  onClick={() => {
-                    setSelectedImage(image);
-                    setFormData({
-                      description: image.description || "",
-                      tags: image.tags || [],
-                    });
-                    setIsDirty(false);
-                  }}
-                >
-                  <ListItemButton>
-                    <img
-                      src={image.url}
-                      alt={`Thumbnail ${index}`}
-                      style={{
-                        maxWidth: "100%",
-                        maxHeight: "100px",
-                        objectFit: "contain",
-                        marginRight: 10,
-                      }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
+          <ImageList images={images} onSelectImage={setSelectedImage} />
         </Grid>
         <Grid item xs={12} md={9}>
           <Typography variant="h5" align="center" gutterBottom>
@@ -373,122 +269,29 @@ function MetadataExtraction() {
           <Grid container spacing={2} alignItems="center">
             {files.length === 0 && (
               <Grid item xs={12}>
-                <div
-                  {...getRootProps()}
-                  style={{
-                    border: "2px dashed #cccccc",
-                    padding: "1rem",
-                    textAlign: "center",
-                    cursor: "pointer",
-                  }}
-                >
-                  <input {...getInputProps()} />
-                  <Typography variant="body1">
-                    Drag & drop images here, or click to select
-                  </Typography>
-                </div>
+                <ImageUploader onDrop={onDrop} />
               </Grid>
             )}
             {selectedImage && (
               <Grid item xs={12} style={{ marginTop: "1rem" }}>
-                <div style={{ textAlign: "center" }}>
-                  <img
-                    src={selectedImage.url}
-                    alt="Selected"
-                    style={{
-                      width: "100%",
-                      maxWidth: "400px",
-                      objectFit: "contain",
-                      border: "2px solid #000",
-                    }}
-                  />
-                </div>
-                <Grid container spacing={2} style={{ marginTop: "1rem" }}>
-                  <Grid item xs={12}>
-                    <TextField
-                      label="Description"
-                      fullWidth
-                      value={formData.description}
-                      onChange={(e) =>
-                        handleInputChange("description", e.target.value)
-                      }
-                      variant="outlined"
-                      margin="normal"
-                    />
-                    <Typography variant="body2" style={{ marginTop: "1rem" }}>
-                      Tags:
-                    </Typography>
-                    <div>
-                      {formData.tags.map((tag, index) => (
-                        <Chip
-                          key={index}
-                          label={tag}
-                          onClick={() => removeTag(tag)}
-                          clickable
-                          color="primary"
-                          style={{ margin: "0.25rem" }}
-                        />
-                      ))}
-                    </div>
-                  </Grid>
-                  <Grid container spacing={2} justifyContent="center">
-                    <Grid item>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() =>
-                          handleMetadataExtraction(
-                            selectedImage.url,
-                            "recognition"
-                          )
-                        }
-                      >
-                        AI Image Recognition
-                      </Button>
-                    </Grid>
-                    <Grid item>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={() =>
-                          handleMetadataExtraction(
-                            selectedImage.url,
-                            "metadata"
-                          )
-                        }
-                      >
-                        Extract Image Metadata
-                      </Button>
-                    </Grid>
-                    <Grid item>
-                      <Button
-                        variant="contained"
-                        color="success"
-                        onClick={updateImageData}
-                        disabled={!isDirty}
-                      >
-                        Save Changes
-                      </Button>
-                    </Grid>
-                    <Grid item>
-                      {selectedImage && (
-                        <Button
-                          variant="contained"
-                          color="error"
-                          onClick={() =>
-                            deleteImage(selectedImage.id, selectedImage.url)
-                          }
-                        >
-                          Delete Image
-                        </Button>
-                      )}
-                    </Grid>
-                  </Grid>
-                </Grid>
+                <ImageViewer
+                  selectedImage={selectedImage}
+                  formData={formData}
+                  isDirty={isDirty}
+                  handleInputChange={handleInputChange}
+                  removeTag={removeTag}
+                  handleMetadataExtraction={handleMetadataExtraction}
+                  updateImageData={updateImageData}
+                  deleteImage={deleteImage}
+                />
               </Grid>
             )}
             <Grid item xs={12}>
-              {renderMetadataDiv()}
+              <MetadataDisplay
+                metadata={metadata}
+                addTag={addTag}
+                copyToClipboard={copyToClipboard}
+              />
             </Grid>
           </Grid>
         </Grid>
