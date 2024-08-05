@@ -48,8 +48,6 @@ function MetadataExtraction() {
     const fetchImages = async () => {
       try {
         const userId = auth.currentUser ? auth.currentUser.uid : "guest";
-
-        // Query Firestore for images belonging to the current user
         const imagesQuery = query(
           collection(db, "images"),
           where("userId", "==", userId)
@@ -80,7 +78,6 @@ function MetadataExtraction() {
 
   const onDrop = useCallback((acceptedFiles) => {
     setFiles(acceptedFiles);
-    // Start upload immediately for each file
     acceptedFiles.forEach((file) => handleUpload(file));
   }, []);
 
@@ -110,7 +107,6 @@ function MetadataExtraction() {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
         console.log(`File available at ${downloadURL}`);
 
-        // Create image data object
         const imageData = {
           name: file.name,
           description: "",
@@ -121,10 +117,9 @@ function MetadataExtraction() {
           createdAt: new Date(),
         };
 
-        // Update image list with the new image and set it as selected
         setImages((prevImages) => {
           const newImages = [...prevImages, imageData];
-          setSelectedImage(imageData); // Automatically set the new image as selected
+          setSelectedImage(imageData);
           setFormData({
             description: "",
             tags: [],
@@ -133,7 +128,6 @@ function MetadataExtraction() {
           return newImages;
         });
 
-        // Add the new image to Firestore
         try {
           await addDoc(collection(db, "images"), imageData);
           toast.success("Image successfully uploaded!");
@@ -157,30 +151,16 @@ function MetadataExtraction() {
       const response = await axios.post(endpoint, { url });
       setMetadata(response.data.metadata);
 
-      // Show success toast notification
       toast.success(response.data.message || "Operation successful");
     } catch (error) {
       console.error(`Error extracting ${type} metadata:`, error);
 
-      // Show toast notification for 500 errors
       if (error.response && error.response.status === 500) {
         toast.error("Internal Server Error: Unable to extract metadata");
       } else {
         toast.error("Error: Unable to process request");
       }
     }
-  };
-
-  const handleStartOver = () => {
-    setFiles([]);
-    setMetadata(null);
-    setUploadProgress({});
-    setSelectedImage(null);
-    setFormData({
-      description: "",
-      tags: [],
-    });
-    setIsDirty(false);
   };
 
   const formatLabel = (label) => {
@@ -229,7 +209,6 @@ function MetadataExtraction() {
       const imageRef = doc(db, "images", selectedImage.id);
       await updateDoc(imageRef, updatedData);
 
-      // Update local state
       setImages((prevImages) =>
         prevImages.map((img) =>
           img.id === selectedImage.id ? { ...img, ...updatedData } : img
@@ -418,7 +397,7 @@ function MetadataExtraction() {
                     alt="Selected"
                     style={{
                       width: "100%",
-                      maxWidth: "400px", // Set a max-width for responsiveness
+                      maxWidth: "400px",
                       objectFit: "contain",
                       border: "2px solid #000",
                     }}
