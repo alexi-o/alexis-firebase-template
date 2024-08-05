@@ -331,11 +331,7 @@ function MetadataExtraction() {
         )}`
       );
       await deleteObject(fileRef);
-
-      // Delete from Firestore
       await deleteDoc(doc(db, "images", imageId));
-
-      // Update local state
       setImages((prevImages) => prevImages.filter((img) => img.id !== imageId));
       if (selectedImage && selectedImage.id === imageId) setSelectedImage(null);
 
@@ -494,6 +490,19 @@ function MetadataExtraction() {
                       >
                         Save Changes
                       </Button>
+                    </Grid>
+                    <Grid item>
+                      {selectedImage && (
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={() =>
+                            deleteImage(selectedImage.id, selectedImage.url)
+                          }
+                        >
+                          Delete Image
+                        </Button>
+                      )}
                     </Grid>
                   </Grid>
                 </Grid>
