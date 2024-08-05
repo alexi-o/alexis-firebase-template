@@ -274,14 +274,14 @@ function MetadataExtraction() {
     if (!metadata) return null;
 
     return (
-      <Paper style={{ padding: 16, marginBottom: 16 }}>
+      <Paper style={{ padding: "1rem", marginBottom: "1rem" }}>
         <div
           style={{
             whiteSpace: "pre-wrap",
             width: "100%",
             backgroundColor: "#f5f5f5",
             fontFamily: "inherit",
-            fontSize: "14px",
+            fontSize: "0.9rem",
             lineHeight: "1.5",
           }}
         >
@@ -294,7 +294,7 @@ function MetadataExtraction() {
                   )}%`}
                   onClick={() => addTag(formatLabel(label))}
                   clickable
-                  style={{ margin: "4px" }}
+                  style={{ margin: "0.25rem" }}
                 />
               ))
             : Object.entries(metadata).map(([key, value]) => (
@@ -303,7 +303,7 @@ function MetadataExtraction() {
                   label={`${key}: ${value}`}
                   onClick={() => addTag(key)}
                   clickable
-                  style={{ margin: "4px" }}
+                  style={{ margin: "0.25rem" }}
                 />
               ))}
         </div>
@@ -312,7 +312,7 @@ function MetadataExtraction() {
             variant="outlined"
             color="primary"
             onClick={copyToClipboard}
-            style={{ marginTop: 16 }}
+            style={{ marginTop: "1rem" }}
           >
             Copy to Clipboard
           </Button>
@@ -353,10 +353,10 @@ function MetadataExtraction() {
 
   return (
     <div>
-      <ToastContainer position="bottom-left" autoClose="2000" />
+      <ToastContainer position="bottom-left" autoClose={2000} />
       <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <Paper style={{ padding: 16, height: "100%", overflowY: "auto" }}>
+        <Grid item xs={12} md={3}>
+          <Paper style={{ padding: "1rem", height: "100%", overflowY: "auto" }}>
             <Typography variant="h6" align="center" gutterBottom>
               Uploaded Images
             </Typography>
@@ -391,7 +391,7 @@ function MetadataExtraction() {
             </List>
           </Paper>
         </Grid>
-        <Grid item xs={9}>
+        <Grid item xs={12} md={9}>
           <Typography variant="h5" align="center" gutterBottom>
             Metadata Extraction
           </Typography>
@@ -402,7 +402,7 @@ function MetadataExtraction() {
                   {...getRootProps()}
                   style={{
                     border: "2px dashed #cccccc",
-                    padding: "20px",
+                    padding: "1rem",
                     textAlign: "center",
                     cursor: "pointer",
                   }}
@@ -415,19 +415,20 @@ function MetadataExtraction() {
               </Grid>
             )}
             {selectedImage && (
-              <Grid item xs={12} style={{ marginTop: 20 }}>
+              <Grid item xs={12} style={{ marginTop: "1rem" }}>
                 <div style={{ textAlign: "center" }}>
                   <img
                     src={selectedImage.url}
                     alt="Selected"
                     style={{
-                      maxHeight: "400px",
+                      width: "100%",
+                      maxWidth: "400px", // Set a max-width for responsiveness
                       objectFit: "contain",
                       border: "2px solid #000",
                     }}
                   />
                 </div>
-                <Grid container spacing={2} style={{ marginTop: 20 }}>
+                <Grid container spacing={2} style={{ marginTop: "1rem" }}>
                   <Grid item xs={12}>
                     <TextField
                       label="Description"
@@ -439,7 +440,7 @@ function MetadataExtraction() {
                       variant="outlined"
                       margin="normal"
                     />
-                    <Typography variant="body2" style={{ marginTop: 16 }}>
+                    <Typography variant="body2" style={{ marginTop: "1rem" }}>
                       Tags:
                     </Typography>
                     <div>
@@ -450,7 +451,7 @@ function MetadataExtraction() {
                           onClick={() => removeTag(tag)}
                           clickable
                           color="primary"
-                          style={{ margin: "4px" }}
+                          style={{ margin: "0.25rem" }}
                         />
                       ))}
                     </div>
