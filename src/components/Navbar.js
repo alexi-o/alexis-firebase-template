@@ -11,7 +11,7 @@ const Navbar = () => {
 
   return (
     <AppBar
-      position="static"
+      position="fixed"
       style={{ backgroundColor: theme.palette.background.paper }}
     >
       <Toolbar>

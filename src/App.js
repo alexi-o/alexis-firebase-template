@@ -63,6 +63,7 @@ function App() {
           style={{
             backgroundColor: appliedTheme.palette.background.default,
             minHeight: "100vh",
+            paddingTop: "100px",
           }}
         >
           <Routes>
