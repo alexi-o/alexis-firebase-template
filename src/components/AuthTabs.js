@@ -15,9 +15,9 @@ const AuthTabs = () => {
     <Box sx={{ width: "100%", maxWidth: 500, marginTop: "20px" }}>
       <Box
         sx={{
-          border: "1px solid #ccc", // Single border encompassing both tabs and forms
-          borderRadius: "8px", // Unified rounded corners
-          overflow: "hidden", // Ensures rounded corners are clipped
+          border: "1px solid #ccc",
+          borderRadius: "8px",
+          overflow: "hidden",
         }}
       >
         <Tabs
@@ -28,7 +28,7 @@ const AuthTabs = () => {
           variant="fullWidth"
           centered
           sx={{
-            borderBottom: "1px solid #ccc", // Bottom border of the tabs
+            borderBottom: "1px solid #ccc",
           }}
         >
           <Tab label="Login" />
