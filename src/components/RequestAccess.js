@@ -24,15 +24,38 @@ const RequestAccess = () => {
         where("email", "==", email)
       );
       const requestSnapshot = await getDocs(requestQuery);
+
       const userQuery = query(
         collection(db, "users"),
         where("email", "==", email)
       );
       const userSnapshot = await getDocs(userQuery);
 
-      if (!requestSnapshot.empty || !userSnapshot.empty) {
-        setMessage("This email is already associated with a request or user.");
-        toast.error("This email is already associated with a request or user.");
+      if (!requestSnapshot.empty) {
+        const requestDoc = requestSnapshot.docs[0];
+        const requestData = requestDoc.data();
+
+        if (requestData.status === "pending") {
+          setMessage(
+            "Your request is pending. An admin will be with you soon."
+          );
+          toast.info(
+            "Your request is pending. An admin will be with you soon."
+          );
+        } else if (requestData.status === "denied") {
+          setMessage(
+            "Your request has been denied. Please contact support for more information."
+          );
+          toast.warn(
+            "Your request has been denied. Please contact support for more information."
+          );
+        }
+        return;
+      }
+
+      if (!userSnapshot.empty) {
+        setMessage("This email is already associated with an existing user.");
+        toast.error("This email is already associated with an existing user.");
         return;
       }
 
@@ -56,7 +79,7 @@ const RequestAccess = () => {
 
   return (
     <Container maxWidth="sm">
-      <ToastContainer position="bottom-left" autoClose="2000" />
+      <ToastContainer position="bottom-left" autoClose={5000} />
       <Typography variant="h4" align="center" gutterBottom>
         Request Access
       </Typography>
