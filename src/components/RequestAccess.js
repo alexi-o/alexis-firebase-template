@@ -39,6 +39,7 @@ const RequestAccess = () => {
       await addDoc(collection(db, "accessRequests"), {
         email,
         requestedAt: new Date(),
+        status: "pending",
       });
 
       setSubmitted(true);
