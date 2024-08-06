@@ -1,21 +1,22 @@
 import React, { useState } from "react";
-import { Tabs, Tab, Box } from "@mui/material";
+import { Tabs, Tab, Box, useTheme } from "@mui/material";
 import Login from "./Login";
 import SignUp from "./SignUp";
 import RequestAccess from "./RequestAccess";
 
 const AuthTabs = () => {
   const [tabIndex, setTabIndex] = useState(0);
+  const theme = useTheme();
 
   const handleTabChange = (event, newValue) => {
     setTabIndex(newValue);
   };
 
   return (
-    <Box sx={{ width: "100%", maxWidth: 500, marginTop: "20px" }}>
+    <Box sx={{ width: "100%", maxWidth: 500 }}>
       <Box
         sx={{
-          border: "1px solid #ccc",
+          border: `1px solid ${theme.palette.primary.main}`,
           borderRadius: "8px",
           overflow: "hidden",
         }}
@@ -27,9 +28,6 @@ const AuthTabs = () => {
           textColor="primary"
           variant="fullWidth"
           centered
-          sx={{
-            borderBottom: "1px solid #ccc",
-          }}
         >
           <Tab label="Login" />
           <Tab label="Sign Up" />
@@ -38,6 +36,7 @@ const AuthTabs = () => {
         <Box
           sx={{
             p: 3,
+            backgroundColor: theme.palette.background.default,
           }}
         >
           {tabIndex === 0 && <Login />}

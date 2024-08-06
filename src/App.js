@@ -5,13 +5,15 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { Container, CssBaseline } from "@mui/material";
+import { Container, CssBaseline, Box } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 
 import MetadataExtraction from "./components/MetadataExtraction";
 import Navbar from "./components/Navbar";
 import UserProfile from "./components/UserProfile";
 import Admin from "./components/Admin";
+import AuthContainer from "./components/AuthContainer";
+import Footer from "./components/Footer";
 
 import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -19,7 +21,6 @@ import { doc, getDoc } from "firebase/firestore";
 
 import { darkTheme, lightTheme } from "./theme";
 import useUserRole from "./hooks/useUserRole";
-import AuthContainer from "./components/AuthContainer";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -53,36 +54,51 @@ function App() {
     <ThemeProvider theme={appliedTheme}>
       <CssBaseline />
       <Router>
-        {user && <Navbar />}
-        <Container
-          maxWidth="md"
-          className="App"
-          style={{
-            backgroundColor: appliedTheme.palette.background.default,
-            minHeight: "100vh",
-            paddingTop: user ? "100px" : "50px",
+        <Box
+          sx={{
+            minHeight: "auto",
+            height: "auto",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          {user ? (
-            <Routes>
-              <Route path="/" element={<Navigate to="/home" />} />
-              <Route path="/login" element={<Navigate to="/home" />} />
-              <Route
-                path="/profile"
-                element={<UserProfile setCurrentTheme={setCurrentTheme} />}
-              />
-              <Route path="/signup" element={<Navigate to="/home" />} />
-              <Route path="/request-access" element={<Navigate to="/home" />} />
-              <Route path="/home" element={<MetadataExtraction />} />
-              <Route
-                path="/admin"
-                element={role === "admin" ? <Admin /> : <Navigate to="/home" />}
-              />
-            </Routes>
-          ) : (
-            <AuthContainer />
-          )}
-        </Container>
+          {user && <Navbar />}
+          <Container
+            maxWidth="md"
+            className="App"
+            style={{
+              backgroundColor: appliedTheme.palette.background.default,
+              flex: 1,
+              paddingTop: user ? "100px" : "0",
+            }}
+          >
+            {user ? (
+              <Routes>
+                <Route path="/" element={<Navigate to="/home" />} />
+                <Route path="/login" element={<Navigate to="/home" />} />
+                <Route
+                  path="/profile"
+                  element={<UserProfile setCurrentTheme={setCurrentTheme} />}
+                />
+                <Route path="/signup" element={<Navigate to="/home" />} />
+                <Route
+                  path="/request-access"
+                  element={<Navigate to="/home" />}
+                />
+                <Route path="/home" element={<MetadataExtraction />} />
+                <Route
+                  path="/admin"
+                  element={
+                    role === "admin" ? <Admin /> : <Navigate to="/home" />
+                  }
+                />
+              </Routes>
+            ) : (
+              <AuthContainer />
+            )}
+          </Container>
+          {!user && <Footer />}
+        </Box>
       </Router>
     </ThemeProvider>
   );
