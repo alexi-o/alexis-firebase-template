@@ -60,53 +60,58 @@ function App() {
             minHeight: "100vh",
             display: "flex",
             flexDirection: "column",
+            justifyContent: "space-between", // Ensure space between content and footer
           }}
         >
           {user && <Navbar />}
-          <Container
-            maxWidth="md"
-            className="App"
-            sx={{
-              backgroundColor: appliedTheme.palette.background.default,
-              flex: 1,
-              paddingTop: user ? "100px" : "0",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Routes>
-              {user ? (
-                <>
-                  <Route path="/" element={<Navigate to="/home" />} />
-                  <Route path="/login" element={<Navigate to="/home" />} />
-                  <Route
-                    path="/profile"
-                    element={<UserProfile setCurrentTheme={setCurrentTheme} />}
-                  />
-                  <Route path="/signup" element={<Navigate to="/home" />} />
-                  <Route
-                    path="/request-access"
-                    element={<Navigate to="/home" />}
-                  />
-                  <Route path="/home" element={<MetadataExtraction />} />
-                  <Route
-                    path="/admin"
-                    element={
-                      role === "admin" ? <Admin /> : <Navigate to="/home" />
-                    }
-                  />
-                </>
-              ) : (
-                <>
-                  <Route path="/" element={<AuthContainer />} />
-                </>
-              )}
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </Container>
+          <Box sx={{ flex: 1 }}>
+            <Container
+              maxWidth="md"
+              className="App"
+              sx={{
+                backgroundColor: appliedTheme.palette.background.default,
+                flex: 1,
+                paddingTop: user ? "100px" : "0",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Routes>
+                {user ? (
+                  <>
+                    <Route path="/" element={<Navigate to="/home" />} />
+                    <Route path="/login" element={<Navigate to="/home" />} />
+                    <Route
+                      path="/profile"
+                      element={
+                        <UserProfile setCurrentTheme={setCurrentTheme} />
+                      }
+                    />
+                    <Route path="/signup" element={<Navigate to="/home" />} />
+                    <Route
+                      path="/request-access"
+                      element={<Navigate to="/home" />}
+                    />
+                    <Route path="/home" element={<MetadataExtraction />} />
+                    <Route
+                      path="/admin"
+                      element={
+                        role === "admin" ? <Admin /> : <Navigate to="/home" />
+                      }
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Route path="/" element={<AuthContainer />} />
+                  </>
+                )}
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </Container>
+          </Box>
           {!user && <Footer />}
         </Box>
       </Router>

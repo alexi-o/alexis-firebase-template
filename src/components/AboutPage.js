@@ -1,6 +1,6 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
-import { Box, Container, Typography, useTheme } from "@mui/material";
+import { Box, Container, useTheme } from "@mui/material";
 
 const markdown = `
 # Alexi O'Hearn
@@ -48,27 +48,13 @@ const markdown = `
 - **Laravel**
 - **CI/CD**
 - **Testing**: Jest, Cypress
-
-## Education
-
-### Bachelor of Arts - Communications
-**Virginia Wesleyan University**  
-**2013 - 2017**
-
-### Web Development Immersive
-**General Assembly**  
-**2017**
-
----
-
-**Software Developer** with a strong foundation in Vue.js and JavaScript, and a proven ability to work effectively in fast-paced, remote environments.
 `;
 
 const AboutPage = () => {
   const theme = useTheme();
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
+    <Container maxWidth="md" sx={{ mt: 4, marginBottom: "10rem" }}>
       <Box
         sx={{
           backgroundColor: theme.palette.background.paper,
