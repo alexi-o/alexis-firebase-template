@@ -5,13 +5,10 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { Container, CssBaseline, Tabs, Tab, Box } from "@mui/material";
+import { Container, CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 
 import MetadataExtraction from "./components/MetadataExtraction";
-import SignUp from "./components/SignUp";
-import Login from "./components/Login";
-import RequestAccess from "./components/RequestAccess";
 import Navbar from "./components/Navbar";
 import UserProfile from "./components/UserProfile";
 import Admin from "./components/Admin";
@@ -22,12 +19,12 @@ import { doc, getDoc } from "firebase/firestore";
 
 import { darkTheme, lightTheme } from "./theme";
 import useUserRole from "./hooks/useUserRole";
+import AuthContainer from "./components/AuthContainer";
 
 function App() {
   const [user, setUser] = useState(null);
   const [currentTheme, setCurrentTheme] = useState("dark");
   const role = useUserRole();
-  const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -52,10 +49,6 @@ function App() {
 
   const appliedTheme = currentTheme === "dark" ? darkTheme : lightTheme;
 
-  const handleTabChange = (event, newValue) => {
-    setTabIndex(newValue);
-  };
-
   return (
     <ThemeProvider theme={appliedTheme}>
       <CssBaseline />
@@ -79,7 +72,7 @@ function App() {
                 element={<UserProfile setCurrentTheme={setCurrentTheme} />}
               />
               <Route path="/signup" element={<Navigate to="/home" />} />
-              <Route path="/request-access" element={<RequestAccess />} />
+              <Route path="/request-access" element={<Navigate to="/home" />} />
               <Route path="/home" element={<MetadataExtraction />} />
               <Route
                 path="/admin"
@@ -87,36 +80,7 @@ function App() {
               />
             </Routes>
           ) : (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "flex-start", // Align items to the top
-                marginTop: "80px", // Add margin to adjust positioning
-                height: "100vh", // Full viewport height
-              }}
-            >
-              <Box sx={{ width: "100%", maxWidth: 500 }}>
-                <Tabs
-                  value={tabIndex}
-                  onChange={handleTabChange}
-                  indicatorColor="primary"
-                  textColor="primary"
-                  variant="fullWidth"
-                  centered
-                >
-                  <Tab label="Login" />
-                  <Tab label="Sign Up" />
-                  <Tab label="Request Access" />
-                </Tabs>
-                <Box sx={{ p: 3 }}>
-                  {tabIndex === 0 && <Login />}
-                  {tabIndex === 1 && <SignUp />}
-                  {tabIndex === 2 && <RequestAccess />}
-                </Box>
-              </Box>
-            </Box>
+            <AuthContainer />
           )}
         </Container>
       </Router>
