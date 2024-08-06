@@ -5,9 +5,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { Container } from "@mui/material";
+import { Container, CssBaseline, Tabs, Tab, Box } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
 
 import MetadataExtraction from "./components/MetadataExtraction";
 import SignUp from "./components/SignUp";
@@ -28,6 +27,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [currentTheme, setCurrentTheme] = useState("dark");
   const role = useUserRole();
+  const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -52,57 +52,72 @@ function App() {
 
   const appliedTheme = currentTheme === "dark" ? darkTheme : lightTheme;
 
+  const handleTabChange = (event, newValue) => {
+    setTabIndex(newValue);
+  };
+
   return (
     <ThemeProvider theme={appliedTheme}>
       <CssBaseline />
       <Router>
-        <Navbar />
+        {user && <Navbar />}
         <Container
           maxWidth="md"
           className="App"
           style={{
             backgroundColor: appliedTheme.palette.background.default,
             minHeight: "100vh",
-            paddingTop: "100px",
+            paddingTop: user ? "100px" : "50px",
           }}
         >
-          <Routes>
-            <Route
-              path="/"
-              element={
-                user ? <Navigate to="/home" /> : <Navigate to="/login" />
-              }
-            />
-            <Route
-              path="/login"
-              element={user ? <Navigate to="/home" /> : <Login />}
-            />
-            <Route
-              path="/profile"
-              element={
-                user ? (
-                  <UserProfile setCurrentTheme={setCurrentTheme} />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/signup"
-              element={user ? <Navigate to="/home" /> : <SignUp />}
-            />
-            <Route path="/request-access" element={<RequestAccess />} />
-            <Route
-              path="/home"
-              element={user ? <MetadataExtraction /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/admin"
-              element={
-                user && role === "admin" ? <Admin /> : <Navigate to="/home" />
-              }
-            />
-          </Routes>
+          {user ? (
+            <Routes>
+              <Route path="/" element={<Navigate to="/home" />} />
+              <Route path="/login" element={<Navigate to="/home" />} />
+              <Route
+                path="/profile"
+                element={<UserProfile setCurrentTheme={setCurrentTheme} />}
+              />
+              <Route path="/signup" element={<Navigate to="/home" />} />
+              <Route path="/request-access" element={<RequestAccess />} />
+              <Route path="/home" element={<MetadataExtraction />} />
+              <Route
+                path="/admin"
+                element={role === "admin" ? <Admin /> : <Navigate to="/home" />}
+              />
+            </Routes>
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "flex-start", // Align items to the top
+                marginTop: "80px", // Add margin to adjust positioning
+                height: "100vh", // Full viewport height
+              }}
+            >
+              <Box sx={{ width: "100%", maxWidth: 500 }}>
+                <Tabs
+                  value={tabIndex}
+                  onChange={handleTabChange}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  variant="fullWidth"
+                  centered
+                >
+                  <Tab label="Login" />
+                  <Tab label="Sign Up" />
+                  <Tab label="Request Access" />
+                </Tabs>
+                <Box sx={{ p: 3 }}>
+                  {tabIndex === 0 && <Login />}
+                  {tabIndex === 1 && <SignUp />}
+                  {tabIndex === 2 && <RequestAccess />}
+                </Box>
+              </Box>
+            </Box>
+          )}
         </Container>
       </Router>
     </ThemeProvider>
