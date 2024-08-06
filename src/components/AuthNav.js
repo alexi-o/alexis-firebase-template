@@ -1,13 +1,31 @@
-import React from "react";
-import { Button, useTheme } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Button, useTheme, Badge } from "@mui/material";
 import { Link } from "react-router-dom";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 import useUserRole from "../hooks/useUserRole";
 
 const AuthenticatedNav = () => {
   const theme = useTheme();
   const role = useUserRole();
-  console.info("role", role);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+
+  useEffect(() => {
+    if (role === "admin") {
+      console.info("beans");
+      const q = query(
+        collection(db, "accessRequests"),
+        where("status", "==", "pending")
+      );
+
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        setPendingRequestsCount(snapshot.size);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [role]);
+
   return (
     <>
       <Button color="inherit">
@@ -28,15 +46,21 @@ const AuthenticatedNav = () => {
       </Button>
       {role === "admin" && (
         <Button color="inherit">
-          <Link
-            to="/admin"
-            style={{
-              color: theme.palette.text.primary,
-              textDecoration: "none",
-            }}
+          <Badge
+            badgeContent={pendingRequestsCount}
+            color="error"
+            invisible={pendingRequestsCount === 0}
           >
-            Admin
-          </Link>
+            <Link
+              to="/admin"
+              style={{
+                color: theme.palette.text.primary,
+                textDecoration: "none",
+              }}
+            >
+              Admin
+            </Link>
+          </Badge>
         </Button>
       )}
       <Button color="inherit" onClick={() => auth.signOut()}>
