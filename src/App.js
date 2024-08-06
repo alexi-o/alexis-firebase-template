@@ -14,6 +14,7 @@ import UserProfile from "./components/UserProfile";
 import Admin from "./components/Admin";
 import AuthContainer from "./components/AuthContainer";
 import Footer from "./components/Footer";
+import AboutPage from "./components/AboutPage";
 
 import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -56,8 +57,7 @@ function App() {
       <Router>
         <Box
           sx={{
-            minHeight: "auto",
-            height: "auto",
+            minHeight: "100vh",
             display: "flex",
             flexDirection: "column",
           }}
@@ -66,36 +66,46 @@ function App() {
           <Container
             maxWidth="md"
             className="App"
-            style={{
+            sx={{
               backgroundColor: appliedTheme.palette.background.default,
               flex: 1,
               paddingTop: user ? "100px" : "0",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
-            {user ? (
-              <Routes>
-                <Route path="/" element={<Navigate to="/home" />} />
-                <Route path="/login" element={<Navigate to="/home" />} />
-                <Route
-                  path="/profile"
-                  element={<UserProfile setCurrentTheme={setCurrentTheme} />}
-                />
-                <Route path="/signup" element={<Navigate to="/home" />} />
-                <Route
-                  path="/request-access"
-                  element={<Navigate to="/home" />}
-                />
-                <Route path="/home" element={<MetadataExtraction />} />
-                <Route
-                  path="/admin"
-                  element={
-                    role === "admin" ? <Admin /> : <Navigate to="/home" />
-                  }
-                />
-              </Routes>
-            ) : (
-              <AuthContainer />
-            )}
+            <Routes>
+              {user ? (
+                <>
+                  <Route path="/" element={<Navigate to="/home" />} />
+                  <Route path="/login" element={<Navigate to="/home" />} />
+                  <Route
+                    path="/profile"
+                    element={<UserProfile setCurrentTheme={setCurrentTheme} />}
+                  />
+                  <Route path="/signup" element={<Navigate to="/home" />} />
+                  <Route
+                    path="/request-access"
+                    element={<Navigate to="/home" />}
+                  />
+                  <Route path="/home" element={<MetadataExtraction />} />
+                  <Route
+                    path="/admin"
+                    element={
+                      role === "admin" ? <Admin /> : <Navigate to="/home" />
+                    }
+                  />
+                </>
+              ) : (
+                <>
+                  <Route path="/" element={<AuthContainer />} />
+                </>
+              )}
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
           </Container>
           {!user && <Footer />}
         </Box>
