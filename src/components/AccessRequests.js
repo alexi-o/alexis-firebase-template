@@ -62,6 +62,26 @@ const AccessRequests = () => {
     }
   };
 
+  const handleDeny = async (request) => {
+    try {
+      const requestDoc = doc(db, "accessRequests", request.id);
+
+      // Update request status to denied
+      await updateDoc(requestDoc, { status: "denied" });
+
+      setRequests((prevRequests) =>
+        prevRequests.map((req) =>
+          req.id === request.id ? { ...req, status: "denied" } : req
+        )
+      );
+
+      toast.success(`Request denied for ${request.email}`);
+    } catch (error) {
+      console.error("Error denying request:", error);
+      toast.error("Failed to deny request.");
+    }
+  };
+
   const generateInvitationCode = () => {
     return Math.random().toString(36).substring(2, 10).toUpperCase();
   };
@@ -83,13 +103,23 @@ const AccessRequests = () => {
             </Grid>
             <Grid item xs={4}>
               {request.status === "pending" && (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleApprove(request)}
-                >
-                  Approve
-                </Button>
+                <>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleApprove(request)}
+                    style={{ marginRight: "8px" }}
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleDeny(request)}
+                  >
+                    Deny
+                  </Button>
+                </>
               )}
             </Grid>
           </Grid>
