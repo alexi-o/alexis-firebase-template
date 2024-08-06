@@ -15,6 +15,8 @@ import Admin from "./components/Admin";
 import AuthContainer from "./components/AuthContainer";
 import Footer from "./components/Footer";
 import AboutPage from "./components/AboutPage";
+import ContactPage from "./components/ContactPage"; // Import ContactPage
+import BecomePage from "./components/BecomePage"; // Import BecomePage
 
 import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -60,7 +62,7 @@ function App() {
             minHeight: "100vh",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between", // Ensure space between content and footer
+            justifyContent: "space-between",
           }}
         >
           {user && <Navbar />}
@@ -105,9 +107,11 @@ function App() {
                 ) : (
                   <>
                     <Route path="/" element={<AuthContainer />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/become" element={<BecomePage />} />
                   </>
                 )}
-                <Route path="/about" element={<AboutPage />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </Container>

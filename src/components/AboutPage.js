@@ -1,6 +1,7 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
-import { Box, Container, useTheme } from "@mui/material";
+import { Box, Container, Button, useTheme } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const markdown = `
 # Alexi O'Hearn
@@ -52,6 +53,7 @@ const markdown = `
 
 const AboutPage = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
 
   return (
     <Container maxWidth="md" sx={{ mt: 4, marginBottom: "10rem" }}>
@@ -65,6 +67,15 @@ const AboutPage = () => {
         }}
       >
         <ReactMarkdown children={markdown} />
+        <Box sx={{ textAlign: "center", mt: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate("/")}
+          >
+            Back to Login
+          </Button>
+        </Box>
       </Box>
     </Container>
   );
