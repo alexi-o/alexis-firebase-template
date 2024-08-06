@@ -4,7 +4,6 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
 import {
   doc,
-  getDoc,
   setDoc,
   updateDoc,
   collection,
@@ -24,7 +23,6 @@ const SignUp = () => {
   const handleSignUp = async () => {
     setError("");
     try {
-      // Check if the email is already used
       const usersRef = collection(db, "users");
       const emailQuery = query(usersRef, where("email", "==", email));
       const emailSnapshot = await getDocs(emailQuery);
@@ -50,7 +48,6 @@ const SignUp = () => {
         return;
       }
 
-      // Create the user account
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -58,14 +55,12 @@ const SignUp = () => {
       );
       const user = userCredential.user;
 
-      // Create a new document in Firestore for the user with default role
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
-        role: "user", // Default role
+        role: "user",
         createdAt: new Date(),
       });
 
-      // Mark the invitation code as used
       const inviteDocRef = inviteSnapshot.docs[0].ref;
       await updateDoc(inviteDocRef, { used: true });
 

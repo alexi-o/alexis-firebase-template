@@ -80,13 +80,10 @@ const RequestAccess = () => {
   return (
     <Container maxWidth="sm">
       <ToastContainer position="bottom-left" autoClose={5000} />
-      <Typography variant="h4" align="center" gutterBottom>
-        Request Access
-      </Typography>
+      <h2>Request Access</h2>
+
       {submitted ? (
-        <Typography variant="body1" align="center">
-          {message}
-        </Typography>
+        <p>{message}</p>
       ) : (
         <form onSubmit={handleSubmit}>
           <TextField
