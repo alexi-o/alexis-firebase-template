@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextField, Button, Typography, Container } from "@mui/material";
+import { TextField, Button, Typography } from "@mui/material";
 import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { ToastContainer, toast } from "react-toastify";
@@ -78,7 +78,7 @@ const RequestAccess = () => {
   };
 
   return (
-    <Container maxWidth="sm">
+    <div>
       <ToastContainer position="bottom-left" autoClose={5000} />
       <h2>Request Access</h2>
 
@@ -110,7 +110,7 @@ const RequestAccess = () => {
           )}
         </form>
       )}
-    </Container>
+    </div>
   );
 };
 
