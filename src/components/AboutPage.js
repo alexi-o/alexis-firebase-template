@@ -16,11 +16,12 @@ const markdown = `
 **2024 - Present**
 
 - Played a key role as part of a small core team that built a new SaaS product from scratch, evolving from our proprietary CMS application.
-- Helped lead the design and implementation of the infrastructure and database architecture, ensuring scalability and efficiency.
+- Helped with the design and implementation of the infrastructure and database architecture, ensuring scalability and efficiency.
 - Architected and developed core components and made crucial decisions on tooling and frameworks, including the transition to Nuxt 3 for server-side rendering.
 - Collaborated closely with Design and Product teams to develop seamless integrations between our platform and Figma, streamlining the workflow from design to development.
 - Utilized technologies such as VueJs, PHP, Lumen, CircleCI, Jest, Docker, Cypress, and Figma to deliver high-quality, maintainable code.
 - Continuously improved the application by adopting best practices and new technologies, ensuring optimal performance and user experience.
+- Technologies used: VueJs, PHP, Lumen, CircleCI, Jest, Docker, Cypress, Figma.
 
 ### Senior Frontend Developer
 **Monigle · Brand Marketing Agency · Denver, CO**  
@@ -28,7 +29,7 @@ const markdown = `
 
 - Used VueJs and Laravel to build and maintain a wide variety of features within our proprietary CMS application.
 - Worked closely with Design and Product to develop integrations between our platform and Figma to speed up the process between site designs and development.
-- Developed a new SASS version of our application utilizing Nuxt 3 for server-side rendering.
+- Developed a new SaaS version of our application utilizing Nuxt 3 for server-side rendering.
 - Technologies used: VueJs, PHP, Lumen, CircleCI, Jest, Docker, Cypress, Figma.
 
 ### Web Developer
