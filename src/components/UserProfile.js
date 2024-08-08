@@ -111,7 +111,6 @@ const UserProfile = ({ setCurrentTheme }) => {
       >
         <MenuItem value="dark">Dark Theme</MenuItem>
         <MenuItem value="light">Light Theme</MenuItem>
-        {/* Add more themes as needed */}
       </Select>
       <Button
         variant="contained"

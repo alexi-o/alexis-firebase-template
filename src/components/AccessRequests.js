@@ -36,10 +36,8 @@ const AccessRequests = () => {
       const invitationCode = generateInvitationCode();
       const requestDoc = doc(db, "accessRequests", request.id);
 
-      // Update request status to approved
       await updateDoc(requestDoc, { status: "approved", invitationCode });
 
-      // Add invitation code to Firestore
       await addDoc(collection(db, "invitations"), {
         email: request.email,
         code: invitationCode,
@@ -66,7 +64,6 @@ const AccessRequests = () => {
     try {
       const requestDoc = doc(db, "accessRequests", request.id);
 
-      // Update request status to denied
       await updateDoc(requestDoc, { status: "denied" });
 
       setRequests((prevRequests) =>

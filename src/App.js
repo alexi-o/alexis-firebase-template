@@ -17,7 +17,7 @@ import Footer from "./components/Footer";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
 import BecomePage from "./components/BecomePage";
-import Portfolio from "./components/Portfolio"; // Import the Portfolio component
+import Portfolio from "./components/Portfolio";
 
 import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -99,7 +99,6 @@ function App() {
                     />
                     <Route path="/home" element={<MetadataExtraction />} />
                     <Route path="/portfolio" element={<Portfolio />} />{" "}
-                    {/* Add Portfolio Route */}
                     <Route
                       path="/admin"
                       element={
