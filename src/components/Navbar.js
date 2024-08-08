@@ -1,5 +1,5 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, useTheme } from "@mui/material";
+import { AppBar, Toolbar, Typography, useTheme, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import AuthNav from "./AuthNav";
@@ -12,20 +12,22 @@ const Navbar = () => {
   return (
     <AppBar
       position="fixed"
-      style={{ backgroundColor: theme.palette.background.paper }}
+      sx={{ backgroundColor: theme.palette.background.paper }}
     >
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          <Link
+        <Box sx={{ flexGrow: 1 }}>
+          <Typography
+            variant="h6"
+            component={Link}
             to="/"
-            style={{
+            sx={{
               color: theme.palette.text.primary,
               textDecoration: "none",
             }}
           >
             Alexi's World
-          </Link>
-        </Typography>
+          </Typography>
+        </Box>
         {user ? <AuthNav /> : <PublicNav />}
       </Toolbar>
     </AppBar>
