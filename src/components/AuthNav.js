@@ -44,6 +44,9 @@ const AuthenticatedNav = () => {
           Profile
         </Link>
       </Button>
+      <Button color="inherit" component={Link} to="/portfolio">
+        Portfolio
+      </Button>
       {role === "admin" && (
         <Button color="inherit">
           <Badge

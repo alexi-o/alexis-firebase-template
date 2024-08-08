@@ -15,8 +15,9 @@ import Admin from "./components/Admin";
 import AuthContainer from "./components/AuthContainer";
 import Footer from "./components/Footer";
 import AboutPage from "./components/AboutPage";
-import ContactPage from "./components/ContactPage"; // Import ContactPage
-import BecomePage from "./components/BecomePage"; // Import BecomePage
+import ContactPage from "./components/ContactPage";
+import BecomePage from "./components/BecomePage";
+import Portfolio from "./components/Portfolio"; // Import the Portfolio component
 
 import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -97,6 +98,8 @@ function App() {
                       element={<Navigate to="/home" />}
                     />
                     <Route path="/home" element={<MetadataExtraction />} />
+                    <Route path="/portfolio" element={<Portfolio />} />{" "}
+                    {/* Add Portfolio Route */}
                     <Route
                       path="/admin"
                       element={

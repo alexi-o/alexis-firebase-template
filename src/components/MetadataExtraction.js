@@ -25,7 +25,10 @@ import ImageViewer from "./ImageViewer";
 import ImageUploader from "./ImageUploader";
 import MetadataDisplay from "./MetadataDisplay";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL =
+  window.location.hostname === "localhost"
+    ? "http://127.0.0.1:5000"
+    : "https://meta-scraper.onrender.com";
 
 function MetadataExtraction() {
   const [files, setFiles] = useState([]);
