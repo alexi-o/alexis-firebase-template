@@ -87,6 +87,9 @@ const Chat = () => {
           timestamp: serverTimestamp(),
         });
         setMessage("");
+        setTimeout(() => {
+          scrollToBottom();
+        }, 300);
       } catch (error) {
         console.error("Error sending message: ", error);
       }
