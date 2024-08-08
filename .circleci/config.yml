@@ -3,7 +3,7 @@ version: 2.1
 executors:
   node-executor:
     docker:
-      - image: circleci/node:18-bullseye
+      - image: circleci/node:18.17
 
 jobs:
   build:
