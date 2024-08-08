@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   TextField,
@@ -10,10 +10,38 @@ import {
   CardMedia,
 } from "@mui/material";
 import axios from "axios";
+import { db, auth } from "../firebase";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 
 const Portfolio = () => {
   const [repoUrl, setRepoUrl] = useState("");
   const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const userId = auth.currentUser ? auth.currentUser.uid : "guest";
+        const querySnapshot = await getDocs(
+          collection(db, "users", userId, "projects")
+        );
+        const projectsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setProjects(projectsData);
+      } catch (error) {
+        console.error("Error fetching projects from Firestore:", error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const fetchRepoDetails = async (url) => {
     try {
@@ -27,18 +55,26 @@ const Portfolio = () => {
       );
       const repoData = response.data;
 
+      const userId = auth.currentUser ? auth.currentUser.uid : "guest";
+      const newProject = {
+        name: repoData.name,
+        description: repoData.description,
+        stars: repoData.stargazers_count,
+        forks: repoData.forks_count,
+        language: repoData.language,
+        html_url: repoData.html_url,
+        owner: repoData.owner.login,
+        avatar_url: repoData.owner.avatar_url,
+      };
+
+      const docRef = await addDoc(
+        collection(db, "users", userId, "projects"),
+        newProject
+      );
+
       setProjects((prevProjects) => [
         ...prevProjects,
-        {
-          name: repoData.name,
-          description: repoData.description,
-          stars: repoData.stargazers_count,
-          forks: repoData.forks_count,
-          language: repoData.language,
-          html_url: repoData.html_url,
-          owner: repoData.owner.login,
-          avatar_url: repoData.owner.avatar_url,
-        },
+        { id: docRef.id, ...newProject },
       ]);
 
       setRepoUrl("");
@@ -54,10 +90,18 @@ const Portfolio = () => {
     }
   };
 
-  const handleDeleteProject = (indexToDelete) => {
-    setProjects((prevProjects) =>
-      prevProjects.filter((_, index) => index !== indexToDelete)
-    );
+  const handleDeleteProject = async (projectId) => {
+    try {
+      const userId = auth.currentUser ? auth.currentUser.uid : "guest";
+      await deleteDoc(doc(db, "users", userId, "projects", projectId));
+
+      setProjects((prevProjects) =>
+        prevProjects.filter((project) => project.id !== projectId)
+      );
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      alert("Failed to delete project.");
+    }
   };
 
   return (
@@ -77,8 +121,8 @@ const Portfolio = () => {
         Add Project
       </Button>
       <Grid container spacing={3} style={{ marginTop: "2rem" }}>
-        {projects.map((project, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
+        {projects.map((project) => (
+          <Grid item xs={12} sm={6} md={4} key={project.id}>
             <Card>
               <CardMedia
                 component="img"
@@ -112,7 +156,7 @@ const Portfolio = () => {
                 <Button
                   size="small"
                   color="secondary"
-                  onClick={() => handleDeleteProject(index)}
+                  onClick={() => handleDeleteProject(project.id)}
                   style={{ marginLeft: "1rem", marginTop: "1rem" }}
                 >
                   Delete
