@@ -42,8 +42,8 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
       - run:
-        name: Deploy to Firebase
-        command: npx firebase-tools deploy --token $FIREBASE_TOKEN --project meta-scraper-1bad5
+          name: Deploy to Firebase
+          command: npx firebase-tools deploy --token $FIREBASE_TOKEN --project meta-scraper-1bad5
 
 workflows:
   version: 2
