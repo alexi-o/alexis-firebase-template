@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   TextField,
   Button,
@@ -27,6 +27,8 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const userId = auth.currentUser.uid;
 
+  const messagesEndRef = useRef(null);
+
   useEffect(() => {
     const fetchUsers = async () => {
       const querySnapshot = await getDocs(collection(db, "users"));
@@ -34,7 +36,6 @@ const Chat = () => {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         if (doc.id !== userId) {
-          // Exclude the current user
           usersData.push({ id: doc.id, ...data });
         }
       });
@@ -65,6 +66,16 @@ const Chat = () => {
 
     return () => unsubscribe();
   }, [userId, selectedUser]);
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const sendMessage = async () => {
     if (message.trim() !== "" && selectedUser) {
@@ -103,7 +114,7 @@ const Chat = () => {
           </List>
         </Grid>
         <Grid item xs={8}>
-          <List style={{ maxHeight: 300, overflow: "auto" }}>
+          <List style={{ maxHeight: 300, overflowY: "auto" }}>
             {messages.map((msg, index) => (
               <ListItem key={index}>
                 <Grid
@@ -128,6 +139,7 @@ const Chat = () => {
                 </Grid>
               </ListItem>
             ))}
+            <div ref={messagesEndRef} />
           </List>
           <TextField
             fullWidth
