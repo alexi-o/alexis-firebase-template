@@ -16,10 +16,10 @@ import { collection, query, where, onSnapshot } from "firebase/firestore";
 import useUserRole from "../hooks/useUserRole";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import PersonIcon from "@mui/icons-material/Person";
-import WorkIcon from "@mui/icons-material/Work";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import ChatIcon from "@mui/icons-material/Chat";
 import "react-toastify/dist/ReactToastify.css";
 
 const AuthenticatedNav = () => {
@@ -63,17 +63,14 @@ const AuthenticatedNav = () => {
           Extractor Tool
         </Link>
       </Button>
-      <Button color="inherit">
-        <Link
-          to="/profile"
-          style={{ color: theme.palette.text.primary, textDecoration: "none" }}
-        >
-          Profile
-        </Link>
-      </Button>
-      <Button color="inherit" component={Link} to="/chat">
-        Chats
-      </Button>
+      <IconButton
+        color="inherit"
+        component={Link}
+        to="/chat"
+        aria-label="chats"
+      >
+        <ChatIcon />
+      </IconButton>
       <IconButton
         color="inherit"
         edge="end"
@@ -99,17 +96,6 @@ const AuthenticatedNav = () => {
               <PersonIcon />
             </ListItemIcon>
             <ListItemText primary="Profile" />
-          </ListItem>
-          <ListItem
-            button
-            component={Link}
-            to="/portfolio"
-            onClick={toggleDrawer(false)}
-          >
-            <ListItemIcon>
-              <WorkIcon />
-            </ListItemIcon>
-            <ListItemText primary="Portfolio" />
           </ListItem>
           <ListItem
             button

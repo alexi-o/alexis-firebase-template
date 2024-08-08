@@ -7,6 +7,7 @@ import {
   ListItemText,
   Paper,
   Typography,
+  Grid,
 } from "@mui/material";
 import { db, auth } from "../firebase";
 import {
@@ -16,14 +17,36 @@ import {
   onSnapshot,
   addDoc,
   serverTimestamp,
+  getDocs,
 } from "firebase/firestore";
 
-const Chat = ({ receiverId }) => {
+const Chat = () => {
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const userId = auth.currentUser.uid;
 
   useEffect(() => {
+    const fetchUsers = async () => {
+      const querySnapshot = await getDocs(collection(db, "users"));
+      const usersData = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (doc.id !== userId) {
+          // Exclude the current user
+          usersData.push({ id: doc.id, ...data });
+        }
+      });
+      setUsers(usersData);
+    };
+
+    fetchUsers();
+  }, [userId]);
+
+  useEffect(() => {
+    if (!selectedUser) return;
+
     const q = query(collection(db, "chats"), orderBy("timestamp"));
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -31,8 +54,8 @@ const Chat = ({ receiverId }) => {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         if (
-          (data.senderId === userId && data.receiverId === receiverId) ||
-          (data.senderId === receiverId && data.receiverId === userId)
+          (data.senderId === userId && data.receiverId === selectedUser.id) ||
+          (data.senderId === selectedUser.id && data.receiverId === userId)
         ) {
           messagesData.push(data);
         }
@@ -41,14 +64,14 @@ const Chat = ({ receiverId }) => {
     });
 
     return () => unsubscribe();
-  }, [userId, receiverId]);
+  }, [userId, selectedUser]);
 
   const sendMessage = async () => {
-    if (message.trim() !== "") {
+    if (message.trim() !== "" && selectedUser) {
       try {
         await addDoc(collection(db, "chats"), {
           senderId: userId,
-          receiverId: receiverId,
+          receiverId: selectedUser.id,
           message: message.trim(),
           timestamp: serverTimestamp(),
         });
@@ -60,36 +83,75 @@ const Chat = ({ receiverId }) => {
   };
 
   return (
-    <Paper style={{ padding: 16, maxWidth: 600, margin: "auto" }}>
+    <Paper style={{ padding: 16, width: 800, margin: "auto" }}>
       <Typography variant="h6" gutterBottom>
         Chat
       </Typography>
-      <List style={{ maxHeight: 300, overflow: "auto" }}>
-        {messages.map((msg, index) => (
-          <ListItem key={index}>
-            <ListItemText
-              primary={msg.senderId === userId ? "You" : "Other"}
-              secondary={msg.message}
-            />
-          </ListItem>
-        ))}
-      </List>
-      <TextField
-        fullWidth
-        variant="outlined"
-        margin="normal"
-        placeholder="Type a message"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={(e) => {
-          if (e.key === "Enter") {
-            sendMessage();
-          }
-        }}
-      />
-      <Button variant="contained" color="primary" onClick={sendMessage}>
-        Send
-      </Button>
+      <Grid container spacing={2}>
+        <Grid item xs={4} style={{ borderRight: "1px solid #ccc" }}>
+          <List>
+            {users.map((user) => (
+              <ListItem
+                key={user.id}
+                button
+                selected={selectedUser?.id === user.id}
+                onClick={() => setSelectedUser(user)}
+              >
+                <ListItemText primary={user.name || user.email} />
+              </ListItem>
+            ))}
+          </List>
+        </Grid>
+        <Grid item xs={8}>
+          <List style={{ maxHeight: 300, overflow: "auto" }}>
+            {messages.map((msg, index) => (
+              <ListItem key={index}>
+                <Grid
+                  container
+                  justifyContent={
+                    msg.senderId === userId ? "flex-end" : "flex-start"
+                  }
+                >
+                  <Grid item xs={8}>
+                    <Paper
+                      style={{
+                        padding: 10,
+                        textAlign: msg.senderId === userId ? "right" : "left",
+                        border: `2px solid ${
+                          msg.senderId === userId ? "grey" : "green"
+                        }`,
+                      }}
+                    >
+                      <ListItemText primary={msg.message} />
+                    </Paper>
+                  </Grid>
+                </Grid>
+              </ListItem>
+            ))}
+          </List>
+          <TextField
+            fullWidth
+            variant="outlined"
+            margin="normal"
+            placeholder="Type a message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                sendMessage();
+              }
+            }}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={sendMessage}
+            disabled={!selectedUser}
+          >
+            Send
+          </Button>
+        </Grid>
+      </Grid>
     </Paper>
   );
 };
