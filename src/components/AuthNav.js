@@ -9,64 +9,24 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Switch,
-  Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { auth, db } from "../firebase";
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  doc,
-  getDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 import useUserRole from "../hooks/useUserRole";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import PersonIcon from "@mui/icons-material/Person";
 import WorkIcon from "@mui/icons-material/Work";
 import SettingsIcon from "@mui/icons-material/Settings";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const AuthenticatedNav = ({ setCurrentTheme }) => {
-  const [userDetails, setUserDetails] = useState({
-    email: "",
-    name: "",
-    theme: "dark",
-  });
+const AuthenticatedNav = () => {
   const theme = useTheme();
   const role = useUserRole();
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        if (auth.currentUser) {
-          const userDoc = doc(db, "users", auth.currentUser.uid);
-          const userSnap = await getDoc(userDoc);
-          if (userSnap.exists()) {
-            setUserDetails(userSnap.data());
-            setCurrentTheme(userSnap.data().theme);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching user details:", error);
-        toast.error("Failed to fetch user details.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserDetails();
-  }, [setCurrentTheme]);
 
   useEffect(() => {
     if (role === "admin") {
@@ -93,28 +53,8 @@ const AuthenticatedNav = ({ setCurrentTheme }) => {
     setDrawerOpen(open);
   };
 
-  const handleThemeChange = async () => {
-    const newTheme = userDetails.theme === "dark" ? "light" : "dark";
-    setUserDetails({ ...userDetails, theme: newTheme });
-    setCurrentTheme(newTheme);
-
-    try {
-      const userDoc = doc(db, "users", auth.currentUser.uid);
-      await updateDoc(userDoc, { theme: newTheme });
-      toast.success("Theme updated successfully.");
-    } catch (error) {
-      console.error("Error updating theme:", error);
-      toast.error("Failed to update theme.");
-    }
-  };
-
-  if (loading) {
-    return <Typography>Loading...</Typography>;
-  }
-
   return (
     <>
-      <ToastContainer position="bottom-left" autoClose={2000} />
       <Button color="inherit">
         <Link
           to="/home"
@@ -131,8 +71,8 @@ const AuthenticatedNav = ({ setCurrentTheme }) => {
           Profile
         </Link>
       </Button>
-      <Button color="inherit" component={Link} to="/portfolio">
-        Portfolio
+      <Button color="inherit" component={Link} to="/chat">
+        Chats
       </Button>
       <IconButton
         color="inherit"

@@ -18,6 +18,7 @@ import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
 import BecomePage from "./components/BecomePage";
 import Portfolio from "./components/Portfolio";
+import Chat from "./components/Chat";
 
 import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -105,6 +106,7 @@ function App() {
                         role === "admin" ? <Admin /> : <Navigate to="/home" />
                       }
                     />
+                    <Route path="/chat" element={<Chat />} />{" "}
                   </>
                 ) : (
                   <>
