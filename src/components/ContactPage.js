@@ -20,7 +20,7 @@ const ContactPage = () => {
           Contact Alexi
         </Typography>
         <Typography variant="body1" sx={{ mb: 3 }}>
-          For any inquiries, please contact us at alexi@example.com.
+          For any inquiries, please contact us at ohearnalexi@gmail.com.
         </Typography>
         <Button
           variant="contained"
