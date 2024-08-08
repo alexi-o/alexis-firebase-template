@@ -3,24 +3,26 @@ version: 2.1
 executors:
   node-executor:
     docker:
-      - image: circleci/node:18.17
+      - image: cimg/node:18.17
 
 jobs:
   build:
     executor: node-executor
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 20.10.7
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            - v1-dependencies-
+            - node-cache-{{ checksum "package-lock.json" }}
+            - node-cache-
       - run:
           name: Install dependencies
-          command: npm install
+          command: npm ci
       - save_cache:
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+            - ~/.npm
+          key: node-cache-{{ checksum "package-lock.json" }}
       - run:
           name: Build application
           command: npm run build
