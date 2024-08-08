@@ -1,6 +1,5 @@
-// MetadataExtraction.js
 import React, { useState, useCallback, useEffect } from "react";
-import { Grid, Typography } from "@mui/material";
+import { Grid, Typography, Link } from "@mui/material";
 import axios from "axios";
 import {
   ref,
@@ -25,6 +24,8 @@ import ImageList from "./ImageList";
 import ImageViewer from "./ImageViewer";
 import ImageUploader from "./ImageUploader";
 import MetadataDisplay from "./MetadataDisplay";
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 function MetadataExtraction() {
   const [files, setFiles] = useState([]);
@@ -137,8 +138,8 @@ function MetadataExtraction() {
     try {
       const endpoint =
         type === "recognition"
-          ? "http://127.0.0.1:5000/image_recognition"
-          : "http://127.0.0.1:5000/extract_exif_metadata";
+          ? `${API_URL}/image_recognition`
+          : `${API_URL}/extract_exif_metadata`;
 
       const response = await axios.post(endpoint, { url });
       setMetadata(response.data.metadata);
@@ -266,6 +267,18 @@ function MetadataExtraction() {
           <Typography variant="h5" align="center" gutterBottom>
             Metadata Extraction
           </Typography>
+          <Link
+            href="https://github.com/alexi-o/meta-scraper"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "block",
+              textAlign: "center",
+              marginBottom: "1rem",
+            }}
+          >
+            View the GitHub Repository
+          </Link>
           <Grid container spacing={2} alignItems="center">
             {files.length === 0 && (
               <Grid item xs={12}>
