@@ -30,6 +30,11 @@ jobs:
           root: .
           paths:
             - build
+            - firebase.json
+            - database.rules.json
+            - firestore.rules
+            - firestore.indexes.json
+            - storage.rules
 
   deploy:
     executor: node-executor
@@ -38,7 +43,7 @@ jobs:
           at: /home/circleci/project
       - run:
           name: Deploy to Firebase
-          command: npx firebase-tools deploy --only hosting --token $FIREBASE_TOKEN
+          command: npx firebase-tools deploy --token $FIREBASE_TOKEN
 
 workflows:
   version: 2
