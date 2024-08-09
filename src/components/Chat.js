@@ -143,9 +143,10 @@ const Chat = () => {
           <List
             style={{
               flex: 1,
-              overflowY: "auto",
+              overflowY: "auto", // Enable scrolling within the messages list
               padding: 0,
               margin: 0,
+              maxHeight: "60vh", // Limit the height to fit within the container
             }}
           >
             {messages.map((msg, index) => (
