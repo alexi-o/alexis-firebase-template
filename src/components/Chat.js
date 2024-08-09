@@ -97,12 +97,27 @@ const Chat = () => {
   };
 
   return (
-    <Paper style={{ padding: 16, width: 800, margin: "auto" }}>
-      <Typography variant="h6" gutterBottom>
+    <Paper
+      style={{
+        height: "100%",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Typography variant="h6" gutterBottom style={{ padding: "16px" }}>
         Chat
       </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={4} style={{ borderRight: "1px solid #ccc" }}>
+      <Grid container style={{ flex: 1, overflow: "hidden" }}>
+        <Grid
+          item
+          xs={4}
+          style={{
+            borderRight: "1px solid #ccc",
+            overflowY: "auto",
+            height: "100%",
+          }}
+        >
           <List>
             {users.map((user) => (
               <ListItem
@@ -116,8 +131,23 @@ const Chat = () => {
             ))}
           </List>
         </Grid>
-        <Grid item xs={8}>
-          <List style={{ maxHeight: 300, overflowY: "auto" }}>
+        <Grid
+          item
+          xs={8}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+          }}
+        >
+          <List
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              padding: 0,
+              margin: 0,
+            }}
+          >
             {messages.map((msg, index) => (
               <ListItem key={index}>
                 <Grid
@@ -144,27 +174,36 @@ const Chat = () => {
             ))}
             <div ref={messagesEndRef} />
           </List>
-          <TextField
-            fullWidth
-            variant="outlined"
-            margin="normal"
-            placeholder="Type a message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                sendMessage();
-              }
+          <div
+            style={{
+              padding: "16px",
+              display: "flex",
+              alignItems: "center",
             }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={sendMessage}
-            disabled={!selectedUser}
           >
-            Send
-          </Button>
+            <TextField
+              fullWidth
+              variant="outlined"
+              margin="normal"
+              placeholder="Type a message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  sendMessage();
+                }
+              }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={sendMessage}
+              disabled={!selectedUser}
+              style={{ marginLeft: "8px" }}
+            >
+              Send
+            </Button>
+          </div>
         </Grid>
       </Grid>
     </Paper>
