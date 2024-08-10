@@ -20,6 +20,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import ChatIcon from "@mui/icons-material/Chat";
+import { useTranslation } from "react-i18next";
 import "react-toastify/dist/ReactToastify.css";
 
 const AuthenticatedNav = () => {
@@ -27,6 +28,7 @@ const AuthenticatedNav = () => {
   const role = useUserRole();
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (role === "admin") {
@@ -60,14 +62,14 @@ const AuthenticatedNav = () => {
           to="/home"
           style={{ color: theme.palette.text.primary, textDecoration: "none" }}
         >
-          Extractor Tool
+          {t("extractorTool")}
         </Link>
       </Button>
       <IconButton
         color="inherit"
         component={Link}
         to="/chat"
-        aria-label="chats"
+        aria-label={t("chats")}
       >
         <ChatIcon />
       </IconButton>
@@ -75,7 +77,7 @@ const AuthenticatedNav = () => {
         color="inherit"
         edge="end"
         onClick={toggleDrawer(true)}
-        aria-label="account of current user"
+        aria-label={t("accountOfCurrentUser")}
       >
         <AccountCircleIcon />
       </IconButton>
@@ -95,7 +97,7 @@ const AuthenticatedNav = () => {
             <ListItemIcon>
               <PersonIcon />
             </ListItemIcon>
-            <ListItemText primary="Profile" />
+            <ListItemText primary={t("profile")} />
           </ListItem>
           <ListItem
             button
@@ -106,7 +108,7 @@ const AuthenticatedNav = () => {
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>
-            <ListItemText primary="Settings" />
+            <ListItemText primary={t("settings")} />
           </ListItem>
           <ListItem
             button
@@ -118,7 +120,7 @@ const AuthenticatedNav = () => {
             <ListItemIcon>
               <ExitToAppIcon />
             </ListItemIcon>
-            <ListItemText primary="Logout" />
+            <ListItemText primary={t("logout")} />
           </ListItem>
           {role === "admin" && (
             <ListItem
@@ -130,7 +132,7 @@ const AuthenticatedNav = () => {
               <ListItemIcon>
                 <AdminPanelSettingsIcon />
               </ListItemIcon>
-              <ListItemText primary="Admin" />
+              <ListItemText primary={t("admin")} />
               {pendingRequestsCount > 0 && (
                 <Badge badgeContent={pendingRequestsCount} color="error" />
               )}
