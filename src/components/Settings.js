@@ -12,14 +12,15 @@ import {
 } from "@mui/material";
 import { auth, db } from "../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useTranslation } from "react-i18next";
 
 const Settings = () => {
+  const { t, i18n } = useTranslation();
   const [theme, setTheme] = useState("light");
   const [timezone, setTimezone] = useState("UTC");
-  const [language, setLanguage] = useState("en");
+  const [language, setLanguage] = useState(i18n.language);
   const userId = auth.currentUser?.uid;
 
-  // Fetch settings from Firebase
   useEffect(() => {
     const fetchSettings = async () => {
       if (userId) {
@@ -29,14 +30,13 @@ const Settings = () => {
           const data = userSnap.data();
           setTheme(data.theme || "light");
           setTimezone(data.timezone || "UTC");
-          setLanguage(data.language || "en");
+          setLanguage(data.language || i18n.language);
         }
       }
     };
     fetchSettings();
-  }, [userId]);
+  }, [userId, i18n.language]);
 
-  // Save settings to Firebase
   const saveSettings = async () => {
     if (userId) {
       try {
@@ -49,7 +49,8 @@ const Settings = () => {
           },
           { merge: true }
         );
-        alert("Settings saved successfully!");
+        i18n.changeLanguage(language);
+        alert(t("save"));
       } catch (error) {
         console.error("Error saving settings:", error);
       }
@@ -59,18 +60,18 @@ const Settings = () => {
   return (
     <Container maxWidth="sm" style={{ marginTop: "20px" }}>
       <Typography variant="h4" gutterBottom>
-        Settings
+        {t("settings")}
       </Typography>
       <Box component="form" noValidate autoComplete="off">
         <FormControl fullWidth margin="normal">
-          <InputLabel>Theme</InputLabel>
+          <InputLabel>{t("theme")}</InputLabel>
           <Select value={theme} onChange={(e) => setTheme(e.target.value)}>
-            <MenuItem value="light">Light</MenuItem>
-            <MenuItem value="dark">Dark</MenuItem>
+            <MenuItem value="light">{t("theme")} Light</MenuItem>
+            <MenuItem value="dark">{t("theme")} Dark</MenuItem>
           </Select>
         </FormControl>
         <FormControl fullWidth margin="normal">
-          <InputLabel>Timezone</InputLabel>
+          <InputLabel>{t("timezone")}</InputLabel>
           <Select
             value={timezone}
             onChange={(e) => setTimezone(e.target.value)}
@@ -78,19 +79,16 @@ const Settings = () => {
             <MenuItem value="UTC">UTC</MenuItem>
             <MenuItem value="America/New_York">America/New_York</MenuItem>
             <MenuItem value="Europe/London">Europe/London</MenuItem>
-            {/* Add more timezones as needed */}
           </Select>
         </FormControl>
         <FormControl fullWidth margin="normal">
-          <InputLabel>Language</InputLabel>
+          <InputLabel>{t("language")}</InputLabel>
           <Select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
           >
             <MenuItem value="en">English</MenuItem>
             <MenuItem value="es">Spanish</MenuItem>
-            <MenuItem value="fr">French</MenuItem>
-            {/* Add more languages as needed */}
           </Select>
         </FormControl>
         <Button
@@ -99,7 +97,7 @@ const Settings = () => {
           onClick={saveSettings}
           style={{ marginTop: "16px" }}
         >
-          Save Settings
+          {t("save")}
         </Button>
       </Box>
     </Container>
