@@ -19,6 +19,7 @@ import ContactPage from "./components/ContactPage";
 import BecomePage from "./components/BecomePage";
 import Portfolio from "./components/Portfolio";
 import Chat from "./components/Chat";
+import Settings from "./components/Settings";
 
 import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -109,6 +110,7 @@ function App() {
                       }
                     />
                     <Route path="/chat" element={<Chat />} />{" "}
+                    <Route path="/settings" element={<Settings />} />{" "}
                   </>
                 ) : (
                   <>
