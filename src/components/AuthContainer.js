@@ -1,9 +1,11 @@
 import React from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import AuthTabs from "./AuthTabs";
+import { useTranslation } from "react-i18next";
 
 const AuthContainer = () => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Box
@@ -29,7 +31,7 @@ const AuthContainer = () => {
           letterSpacing: "2px",
         }}
       >
-        Alexi's World
+        {t("alexisWorld")}
       </Typography>
       <AuthTabs />
     </Box>

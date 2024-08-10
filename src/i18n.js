@@ -31,6 +31,7 @@ const resources = {
       saveChanges: "Save Changes",
       deleteImage: "Delete Image",
       uploadedImages: "Uploaded Images",
+      alexisWorld: "Alexi's World",
     },
   },
   es: {
@@ -64,6 +65,7 @@ const resources = {
       saveChanges: "Guardar Cambios",
       deleteImage: "Eliminar Imagen",
       uploadedImages: "Imágenes Subidas",
+      alexisWorld: "El Mundo de Alexi",
     },
   },
 };
