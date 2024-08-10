@@ -24,6 +24,7 @@ import ImageList from "./ImageList";
 import ImageViewer from "./ImageViewer";
 import ImageUploader from "./ImageUploader";
 import MetadataDisplay from "./MetadataDisplay";
+import { useTranslation } from "react-i18next";
 
 const API_URL =
   window.location.hostname === "localhost"
@@ -31,6 +32,7 @@ const API_URL =
     : "https://meta-scraper.onrender.com";
 
 function MetadataExtraction() {
+  const { t } = useTranslation();
   const [files, setFiles] = useState([]);
   const [metadata, setMetadata] = useState(null);
   const [images, setImages] = useState([]);
@@ -126,10 +128,10 @@ function MetadataExtraction() {
 
         try {
           await addDoc(collection(db, "images"), imageData);
-          toast.success("Image successfully uploaded!");
+          toast.success(t("uploadSuccess"));
         } catch (error) {
           console.error("Error adding document: ", error);
-          toast.error("Failed to save image metadata.");
+          toast.error(t("uploadFailure"));
         }
       }
     );
@@ -147,14 +149,14 @@ function MetadataExtraction() {
       const response = await axios.post(endpoint, { url });
       setMetadata(response.data.metadata);
 
-      toast.success(response.data.message || "Operation successful");
+      toast.success(response.data.message || t("uploadSuccess"));
     } catch (error) {
       console.error(`Error extracting ${type} metadata:`, error);
 
       if (error.response && error.response.status === 500) {
-        toast.error("Internal Server Error: Unable to extract metadata");
+        toast.error(t("internalServerError"));
       } else {
-        toast.error("Error: Unable to process request");
+        toast.error(t("processError"));
       }
     }
   };
@@ -178,7 +180,7 @@ function MetadataExtraction() {
 
     navigator.clipboard.writeText(metadataText).then(
       () => {
-        alert("Metadata copied to clipboard!");
+        alert(t("copySuccess"));
       },
       (err) => {
         console.error("Could not copy text: ", err);
@@ -204,11 +206,11 @@ function MetadataExtraction() {
         )
       );
 
-      toast.success("Image data successfully updated!");
+      toast.success(t("updateSuccess"));
       setIsDirty(false);
     } catch (error) {
       console.error("Error updating image data:", error);
-      toast.error("Failed to update image data.");
+      toast.error(t("updateFailure"));
     }
   };
 
@@ -252,10 +254,10 @@ function MetadataExtraction() {
       setImages((prevImages) => prevImages.filter((img) => img.id !== imageId));
       if (selectedImage && selectedImage.id === imageId) setSelectedImage(null);
 
-      toast.success("Image successfully deleted!");
+      toast.success(t("deleteSuccess"));
     } catch (error) {
       console.error("Error deleting image:", error);
-      toast.error("Failed to delete image.");
+      toast.error(t("deleteFailure"));
     }
   };
 
@@ -268,7 +270,7 @@ function MetadataExtraction() {
         </Grid>
         <Grid item xs={12} md={9}>
           <Typography variant="h5" align="center" gutterBottom>
-            Metadata Extraction
+            {t("metadataExtraction")}
           </Typography>
           <Link
             href="https://github.com/alexi-o/meta-scraper"
@@ -280,7 +282,7 @@ function MetadataExtraction() {
               marginBottom: "1rem",
             }}
           >
-            View the GitHub Repository
+            {t("viewGithubRepo")}
           </Link>
           <Grid container spacing={2} alignItems="center">
             {files.length === 0 && (
