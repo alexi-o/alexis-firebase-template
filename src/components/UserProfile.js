@@ -11,8 +11,10 @@ import { auth, db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from "react-i18next";
 
 const UserProfile = ({ setCurrentTheme }) => {
+  const { t } = useTranslation();
   const [userDetails, setUserDetails] = useState({
     email: "",
     name: "",
@@ -33,14 +35,14 @@ const UserProfile = ({ setCurrentTheme }) => {
         }
       } catch (error) {
         console.error("Error fetching user details:", error);
-        toast.error("Failed to fetch user details.");
+        toast.error(t("userDetailsFetchFailed"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserDetails();
-  }, [setCurrentTheme]);
+  }, [setCurrentTheme, t]);
 
   const handleChange = (e) => {
     setUserDetails({ ...userDetails, [e.target.name]: e.target.value });
@@ -54,11 +56,10 @@ const UserProfile = ({ setCurrentTheme }) => {
     try {
       const userDoc = doc(db, "users", auth.currentUser.uid);
       await updateDoc(userDoc, { theme: newTheme });
-      console.info("beans");
-      toast.success("Theme updated successfully.");
+      toast.success(t("themeUpdated"));
     } catch (error) {
       console.error("Error updating theme:", error);
-      toast.error("Failed to update theme.");
+      toast.error(t("themeUpdateFailed"));
     }
   };
 
@@ -66,25 +67,25 @@ const UserProfile = ({ setCurrentTheme }) => {
     try {
       const userDoc = doc(db, "users", auth.currentUser.uid);
       await updateDoc(userDoc, userDetails);
-      toast.success("Profile updated successfully.");
+      toast.success(t("profileUpdated"));
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("Failed to update profile.");
+      toast.error(t("profileUpdateFailed"));
     }
   };
 
   if (loading) {
-    return <Typography>Loading...</Typography>;
+    return <Typography>{t("loading")}</Typography>;
   }
 
   return (
     <Paper style={{ padding: 16, maxWidth: 600, margin: "auto" }}>
       <ToastContainer position="bottom-left" autoClose="2000" />
       <Typography variant="h4" gutterBottom>
-        User Profile
+        {t("userProfile")}
       </Typography>
       <TextField
-        label="Email"
+        label={t("email")}
         name="email"
         value={userDetails.email}
         onChange={handleChange}
@@ -94,7 +95,7 @@ const UserProfile = ({ setCurrentTheme }) => {
         disabled
       />
       <TextField
-        label="Name"
+        label={t("name")}
         name="name"
         value={userDetails.name}
         onChange={handleChange}
@@ -109,8 +110,8 @@ const UserProfile = ({ setCurrentTheme }) => {
         margin="normal"
         variant="outlined"
       >
-        <MenuItem value="dark">Dark Theme</MenuItem>
-        <MenuItem value="light">Light Theme</MenuItem>
+        <MenuItem value="dark">{t("darkTheme")}</MenuItem>{" "}
+        <MenuItem value="light">{t("lightTheme")}</MenuItem>{" "}
       </Select>
       <Button
         variant="contained"
@@ -118,7 +119,7 @@ const UserProfile = ({ setCurrentTheme }) => {
         onClick={handleSave}
         style={{ marginTop: 16 }}
       >
-        Save
+        {t("save")}
       </Button>
     </Paper>
   );
