@@ -23,6 +23,7 @@ const resources = {
       processError: "Error: Unable to process request",
       copyToClipboard: "Copy to Clipboard",
       tagAdded: "Tag added",
+      dragAndDrop: "Drag & drop images here, or click to select",
     },
   },
   es: {
@@ -47,6 +48,8 @@ const resources = {
       processError: "Error: No se puede procesar la solicitud",
       copyToClipboard: "Copiar al Portapapeles",
       tagAdded: "Etiqueta añadida",
+      dragAndDrop:
+        "Arrastra y suelta imágenes aquí, o haz clic para seleccionar",
     },
   },
 };

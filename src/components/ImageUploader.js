@@ -1,8 +1,10 @@
 import React from "react";
 import { useDropzone } from "react-dropzone";
 import { Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const ImageUploader = ({ onDrop }) => {
+  const { t } = useTranslation();
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: "image/*",
@@ -19,9 +21,7 @@ const ImageUploader = ({ onDrop }) => {
       }}
     >
       <input {...getInputProps()} />
-      <Typography variant="body1">
-        Drag & drop images here, or click to select
-      </Typography>
+      <Typography variant="body1">{t("dragAndDrop")}</Typography>
     </div>
   );
 };
