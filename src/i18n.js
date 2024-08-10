@@ -21,6 +21,8 @@ const resources = {
       copySuccess: "Metadata copied to clipboard!",
       internalServerError: "Internal Server Error: Unable to extract metadata",
       processError: "Error: Unable to process request",
+      copyToClipboard: "Copy to Clipboard",
+      tagAdded: "Tag added",
     },
   },
   es: {
@@ -43,6 +45,8 @@ const resources = {
       internalServerError:
         "Error Interno del Servidor: No se pueden extraer los metadatos",
       processError: "Error: No se puede procesar la solicitud",
+      copyToClipboard: "Copiar al Portapapeles",
+      tagAdded: "Etiqueta añadida",
     },
   },
 };
