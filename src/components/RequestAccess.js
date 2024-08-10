@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { TextField, Button, Typography } from "@mui/material";
-import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -61,6 +68,7 @@ const RequestAccess = () => {
         email,
         requestedAt: new Date(),
         status: "pending",
+        createdAt: serverTimestamp(),
       });
 
       setSubmitted(true);
