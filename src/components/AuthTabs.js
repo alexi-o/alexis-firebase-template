@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Tabs, Tab, Box, useTheme } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import Login from "./Login";
 import SignUp from "./SignUp";
 import RequestAccess from "./RequestAccess";
@@ -7,6 +8,7 @@ import RequestAccess from "./RequestAccess";
 const AuthTabs = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const handleTabChange = (event, newValue) => {
     setTabIndex(newValue);
@@ -29,9 +31,9 @@ const AuthTabs = () => {
           variant="fullWidth"
           centered
         >
-          <Tab label="Login" />
-          <Tab label="Sign Up" />
-          <Tab label="Request Access" />
+          <Tab label={t("loginTab")} />
+          <Tab label={t("signUpTab")} />
+          <Tab label={t("requestAccessTab")} />
         </Tabs>
         <Box
           sx={{

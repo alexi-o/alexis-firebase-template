@@ -126,7 +126,7 @@ function App() {
               </Routes>
             </Container>
           </Box>
-          {!user && <Footer />}
+          <Footer />
         </Box>
       </Router>
     </ThemeProvider>

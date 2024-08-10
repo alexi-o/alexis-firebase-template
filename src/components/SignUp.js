@@ -13,8 +13,10 @@ import {
 } from "firebase/firestore";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from "react-i18next";
 
 const SignUp = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [inviteCode, setInviteCode] = useState("");
@@ -28,12 +30,12 @@ const SignUp = () => {
       const emailSnapshot = await getDocs(emailQuery);
 
       if (!emailSnapshot.empty) {
-        setError("Email is already in use.");
-        toast.error("Email is already in use.");
+        const errorMessage = t("emailInUse");
+        setError(errorMessage);
+        toast.error(errorMessage);
         return;
       }
 
-      // Check the invitation code in the 'invitations' collection
       const invitationsRef = collection(db, "invitations");
       const inviteQuery = query(
         invitationsRef,
@@ -43,8 +45,9 @@ const SignUp = () => {
       const inviteSnapshot = await getDocs(inviteQuery);
 
       if (inviteSnapshot.empty) {
-        setError("Invalid or already used invite code.");
-        toast.error("Invalid or already used invite code.");
+        const errorMessage = t("invalidInvite");
+        setError(errorMessage);
+        toast.error(errorMessage);
         return;
       }
 
@@ -64,20 +67,20 @@ const SignUp = () => {
       const inviteDocRef = inviteSnapshot.docs[0].ref;
       await updateDoc(inviteDocRef, { used: true });
 
-      toast.success("User signed up successfully.");
-      console.log("User signed up successfully.");
+      toast.success(t("signUpSuccess"));
+      console.log(t("signUpSuccess"));
     } catch (error) {
-      console.error("Sign up failed:", error.message);
+      console.error(t("signUpFailed", { error: error.message }));
       setError(error.message);
-      toast.error(error.message);
+      toast.error(t("signUpFailed", { error: error.message }));
     }
   };
 
   return (
     <div>
-      <h2>Sign Up</h2>
+      <h2>{t("signUpTitle")}</h2>
       <TextField
-        label="Email"
+        label={t("email")}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         variant="outlined"
@@ -85,7 +88,7 @@ const SignUp = () => {
         fullWidth
       />
       <TextField
-        label="Password"
+        label={t("password")}
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
@@ -94,7 +97,7 @@ const SignUp = () => {
         fullWidth
       />
       <TextField
-        label="Invitation Code"
+        label={t("invitationCode")}
         value={inviteCode}
         onChange={(e) => setInviteCode(e.target.value)}
         variant="outlined"
@@ -103,7 +106,7 @@ const SignUp = () => {
       />
       {error && <p style={{ color: "red" }}>{error}</p>}
       <Button variant="contained" color="primary" onClick={handleSignUp}>
-        Sign Up
+        {t("signUp")}
       </Button>
     </div>
   );

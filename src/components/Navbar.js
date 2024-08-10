@@ -4,8 +4,10 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import AuthNav from "./AuthNav";
 import PublicNav from "./PublicNav";
+import { useTranslation } from "react-i18next";
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const user = useAuth();
   const theme = useTheme();
 
@@ -25,7 +27,7 @@ const Navbar = () => {
               textDecoration: "none",
             }}
           >
-            Alexi's World
+            {t("alexisWorld")}
           </Typography>
         </Box>
         {user ? <AuthNav /> : <PublicNav />}

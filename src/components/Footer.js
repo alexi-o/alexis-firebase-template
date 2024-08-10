@@ -1,6 +1,6 @@
-// Footer.js
 import React from "react";
 import { Box, Link, Typography } from "@mui/material";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Footer = () => {
   return (
@@ -32,6 +32,7 @@ const Footer = () => {
           Become Alexi
         </Link>
       </Typography>
+      <LanguageSwitcher />
     </Box>
   );
 };

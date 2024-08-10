@@ -4,8 +4,10 @@ import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from "react-i18next";
 
 const RequestAccess = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -14,7 +16,8 @@ const RequestAccess = () => {
     e.preventDefault();
 
     if (!email) {
-      setMessage("Please enter a valid email address.");
+      const errorMessage = t("validEmail");
+      setMessage(errorMessage);
       return;
     }
 
@@ -36,26 +39,21 @@ const RequestAccess = () => {
         const requestData = requestDoc.data();
 
         if (requestData.status === "pending") {
-          setMessage(
-            "Your request is pending. An admin will be with you soon."
-          );
-          toast.info(
-            "Your request is pending. An admin will be with you soon."
-          );
+          const infoMessage = t("pendingRequest");
+          setMessage(infoMessage);
+          toast.info(infoMessage);
         } else if (requestData.status === "denied") {
-          setMessage(
-            "Your request has been denied. Please contact support for more information."
-          );
-          toast.warn(
-            "Your request has been denied. Please contact support for more information."
-          );
+          const warnMessage = t("deniedRequest");
+          setMessage(warnMessage);
+          toast.warn(warnMessage);
         }
         return;
       }
 
       if (!userSnapshot.empty) {
-        setMessage("This email is already associated with an existing user.");
-        toast.error("This email is already associated with an existing user.");
+        const errorMessage = t("existingUser");
+        setMessage(errorMessage);
+        toast.error(errorMessage);
         return;
       }
 
@@ -66,28 +64,27 @@ const RequestAccess = () => {
       });
 
       setSubmitted(true);
-      setMessage("Your access request has been submitted.");
-      toast.success("Access request submitted successfully.");
+      const successMessage = t("accessSubmitted");
+      setMessage(successMessage);
+      toast.success(t("successRequest"));
     } catch (error) {
       console.error("Error submitting request:", error);
-      setMessage(
-        "There was an error submitting your request. Please try again later."
-      );
-      toast.error("Error submitting request. Please try again later.");
+      const errorMessage = t("submitError");
+      setMessage(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
   return (
     <div>
       <ToastContainer position="bottom-left" autoClose={5000} />
-      <h2>Request Access</h2>
-
+      <h2>{t("requestAccessTitle")}</h2>
       {submitted ? (
         <p>{message}</p>
       ) : (
         <form onSubmit={handleSubmit}>
           <TextField
-            label="Email"
+            label={t("email")}
             type="email"
             fullWidth
             margin="normal"
@@ -96,7 +93,7 @@ const RequestAccess = () => {
             required
           />
           <Button variant="contained" color="primary" type="submit" fullWidth>
-            Submit
+            {t("submit")}
           </Button>
           {message && (
             <Typography
