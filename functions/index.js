@@ -1,19 +1,33 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+// functions/index.js
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const sgMail = require("@sendgrid/mail");
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+admin.initializeApp();
+sgMail.setApiKey(functions.config().sendgrid.api_key);
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+exports.sendInvitationEmail = functions.firestore
+  .document("accessRequests/{requestId}")
+  .onUpdate(async (change, context) => {
+    const afterData = change.after.data();
+    const beforeData = change.before.data();
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+    if (beforeData.status !== "approved" && afterData.status === "approved") {
+      const email = afterData.email;
+      const invitationCode = afterData.invitationCode;
+
+      const msg = {
+        to: email,
+        from: "your-email@example.com",
+        subject: "Your Access Invitation Code",
+        text: `You have been approved for access. Use the following invitation code to sign up: ${invitationCode}`,
+      };
+
+      try {
+        await sgMail.send(msg);
+        console.log(`Invitation email sent to ${email}`);
+      } catch (error) {
+        console.error("Error sending email:", error);
+      }
+    }
+  });
