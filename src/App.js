@@ -27,11 +27,13 @@ import { doc, getDoc } from "firebase/firestore";
 
 import { darkTheme, lightTheme } from "./theme";
 import useUserRole from "./hooks/useUserRole";
+import useUserLanguage from "./hooks/useUserLanguage";
 
 function App() {
   const [user, setUser] = useState(null);
   const [currentTheme, setCurrentTheme] = useState("dark");
   const role = useUserRole();
+  useUserLanguage();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
