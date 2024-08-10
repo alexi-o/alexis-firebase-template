@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, Grid, TextField, Typography, Chip } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const ImageViewer = ({
   selectedImage,
@@ -11,6 +12,7 @@ const ImageViewer = ({
   updateImageData,
   deleteImage,
 }) => {
+  const { t } = useTranslation();
   if (!selectedImage) return null;
 
   return (
@@ -30,7 +32,7 @@ const ImageViewer = ({
       <Grid container spacing={2} style={{ marginTop: "1rem" }}>
         <Grid item xs={12}>
           <TextField
-            label="Description"
+            label={t("description")}
             fullWidth
             value={formData.description}
             onChange={(e) => handleInputChange("description", e.target.value)}
@@ -38,7 +40,7 @@ const ImageViewer = ({
             margin="normal"
           />
           <Typography variant="body2" style={{ marginTop: "1rem" }}>
-            Tags:
+            {t("tags")}
           </Typography>
           <div>
             {formData.tags.map((tag, index) => (
@@ -62,7 +64,7 @@ const ImageViewer = ({
                 handleMetadataExtraction(selectedImage.url, "recognition")
               }
             >
-              AI Image Recognition
+              {t("aiImageRecognition")}
             </Button>
           </Grid>
           <Grid item>
@@ -73,7 +75,7 @@ const ImageViewer = ({
                 handleMetadataExtraction(selectedImage.url, "metadata")
               }
             >
-              Extract Image Metadata
+              {t("extractImageMetadata")}
             </Button>
           </Grid>
           <Grid item>
@@ -83,7 +85,7 @@ const ImageViewer = ({
               onClick={updateImageData}
               disabled={!isDirty}
             >
-              Save Changes
+              {t("saveChanges")}
             </Button>
           </Grid>
           <Grid item>
@@ -92,7 +94,7 @@ const ImageViewer = ({
               color="error"
               onClick={() => deleteImage(selectedImage.id, selectedImage.url)}
             >
-              Delete Image
+              {t("deleteImage")}
             </Button>
           </Grid>
         </Grid>

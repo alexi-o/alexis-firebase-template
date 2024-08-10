@@ -24,6 +24,13 @@ const resources = {
       copyToClipboard: "Copy to Clipboard",
       tagAdded: "Tag added",
       dragAndDrop: "Drag & drop images here, or click to select",
+      description: "Description",
+      tags: "Tags:",
+      aiImageRecognition: "AI Image Recognition",
+      extractImageMetadata: "Extract Image Metadata",
+      saveChanges: "Save Changes",
+      deleteImage: "Delete Image",
+      uploadedImages: "Uploaded Images",
     },
   },
   es: {
@@ -50,6 +57,13 @@ const resources = {
       tagAdded: "Etiqueta añadida",
       dragAndDrop:
         "Arrastra y suelta imágenes aquí, o haz clic para seleccionar",
+      description: "Descripción",
+      tags: "Etiquetas:",
+      aiImageRecognition: "Reconocimiento de Imagen AI",
+      extractImageMetadata: "Extraer Metadatos de Imagen",
+      saveChanges: "Guardar Cambios",
+      deleteImage: "Eliminar Imagen",
+      uploadedImages: "Imágenes Subidas",
     },
   },
 };

@@ -6,12 +6,15 @@ import {
   Typography,
   Paper,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const ImageList = ({ images, onSelectImage }) => {
+  const { t } = useTranslation();
+
   return (
     <Paper style={{ padding: "1rem", height: "100%", overflowY: "auto" }}>
       <Typography variant="h6" align="center" gutterBottom>
-        Uploaded Images
+        {t("uploadedImages")}
       </Typography>
       <List>
         {images.map((image, index) => (
