@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import Login from "./Login";
 import SignUp from "./SignUp";
 import RequestAccess from "./RequestAccess";
+import ContactForm from "./ContactPage";
 
 const AuthTabs = () => {
   const [tabIndex, setTabIndex] = useState(0);
@@ -34,6 +35,7 @@ const AuthTabs = () => {
           <Tab label={t("loginTab")} />
           <Tab label={t("signUpTab")} />
           <Tab label={t("requestAccessTab")} />
+          <Tab label={t("contactUsTitle")} />
         </Tabs>
         <Box
           sx={{
@@ -44,6 +46,7 @@ const AuthTabs = () => {
           {tabIndex === 0 && <Login />}
           {tabIndex === 1 && <SignUp />}
           {tabIndex === 2 && <RequestAccess />}
+          {tabIndex === 3 && <ContactForm />}
         </Box>
       </Box>
     </Box>
