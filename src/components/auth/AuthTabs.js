@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import Login from "./Login";
 import SignUp from "./SignUp";
 import RequestAccess from "./RequestAccess";
-import ContactForm from "./ContactPage";
+import ContactForm from "./Contact";
 
 const AuthTabs = () => {
   const [tabIndex, setTabIndex] = useState(0);

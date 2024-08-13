@@ -11,9 +11,9 @@ import {
   ListItemText,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { auth, db } from "../firebase";
+import { auth, db } from "../../firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
-import useUserRole from "../hooks/useUserRole";
+import useUserRole from "../../hooks/useUserRole";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";

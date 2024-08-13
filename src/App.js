@@ -12,13 +12,13 @@ import MetadataExtraction from "./components/MetadataExtraction";
 import Navbar from "./components/Navbar";
 import UserProfile from "./components/UserProfile";
 import Admin from "./components/Admin";
-import AuthContainer from "./components/AuthContainer";
+import AuthContainer from "./components/auth/AuthContainer";
 import Footer from "./components/Footer";
 import AboutPage from "./components/AboutPage";
-import ContactPage from "./components/ContactPage";
+import ContactPage from "./components/auth/Contact";
 import BecomePage from "./components/BecomePage";
 import Portfolio from "./components/Portfolio";
-import Chat from "./components/Chat";
+import Chat from "./components/chat/Chat";
 import Settings from "./components/Settings";
 
 import { auth, db } from "./firebase";

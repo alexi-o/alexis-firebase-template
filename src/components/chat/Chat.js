@@ -9,7 +9,7 @@ import {
   Typography,
   Grid,
 } from "@mui/material";
-import { db, auth } from "../firebase";
+import { db, auth } from "../../firebase";
 import {
   collection,
   query,

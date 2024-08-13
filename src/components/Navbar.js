@@ -2,7 +2,7 @@ import React from "react";
 import { AppBar, Toolbar, Typography, useTheme, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import AuthNav from "./AuthNav";
+import AuthNav from "./auth/AuthNav";
 import PublicNav from "./PublicNav";
 import { useTranslation } from "react-i18next";
 
