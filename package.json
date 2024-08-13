@@ -17,6 +17,7 @@
     "node-mailjet": "^6.0.5",
     "nodemailer": "^6.9.14",
     "react": "^18.2.0",
+    "react-color-extractor": "^1.1.2",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-i18next": "^15.0.1",
