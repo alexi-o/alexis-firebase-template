@@ -19,7 +19,7 @@ import ContactPage from "./components/auth/Contact";
 import BecomePage from "./components/pages/BecomePage";
 import Portfolio from "./components/portfolio/Portfolio";
 import Chat from "./components/chat/Chat";
-import Settings from "./components/Settings";
+import Settings from "./components/user/Settings";
 
 import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";

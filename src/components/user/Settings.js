@@ -9,7 +9,7 @@ import {
   InputLabel,
   Box,
 } from "@mui/material";
-import { auth, db } from "../firebase";
+import { auth, db } from "../../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useTranslation } from "react-i18next";
 
