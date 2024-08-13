@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { List, ListItem, ListItemText } from "@mui/material";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import { collection, getDocs } from "firebase/firestore";
 
 const Invitations = () => {

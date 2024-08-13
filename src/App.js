@@ -8,16 +8,16 @@ import {
 import { Container, CssBaseline, Box } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 
-import MetadataExtraction from "./components/MetadataExtraction";
-import Navbar from "./components/Navbar";
-import UserProfile from "./components/UserProfile";
-import Admin from "./components/Admin";
+import MetadataExtraction from "./components/metadata/MetadataExtraction";
+import Navbar from "./components/navigation/Navbar";
+import UserProfile from "./components/user/UserProfile";
+import Admin from "./components/admin/Admin";
 import AuthContainer from "./components/auth/AuthContainer";
-import Footer from "./components/Footer";
-import AboutPage from "./components/AboutPage";
+import Footer from "./components/layout/Footer";
+import AboutPage from "./components/pages/AboutPage";
 import ContactPage from "./components/auth/Contact";
-import BecomePage from "./components/BecomePage";
-import Portfolio from "./components/Portfolio";
+import BecomePage from "./components/pages/BecomePage";
+import Portfolio from "./components/portfolio/Portfolio";
 import Chat from "./components/chat/Chat";
 import Settings from "./components/Settings";
 

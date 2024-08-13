@@ -17,12 +17,12 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
-import { storage, auth, db } from "../firebase";
+import { storage, auth, db } from "../../firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ImageList from "./ImageList";
-import ImageViewer from "./ImageViewer";
-import ImageUploader from "./ImageUploader";
+import ImageList from "../image/ImageList";
+import ImageViewer from "../image/ImageViewer";
+import ImageUploader from "../image/ImageUploader";
 import MetadataDisplay from "./MetadataDisplay";
 import { useTranslation } from "react-i18next";
 

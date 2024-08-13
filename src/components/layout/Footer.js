@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Link, Typography } from "@mui/material";
-import LanguageSwitcher from "./LanguageSwitcher";
+import LanguageSwitcher from "../LanguageSwitcher";
 
 const Footer = () => {
   return (

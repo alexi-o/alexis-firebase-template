@@ -10,7 +10,7 @@ import {
   CardMedia,
 } from "@mui/material";
 import axios from "axios";
-import { db, auth } from "../firebase";
+import { db, auth } from "../../firebase";
 import {
   collection,
   addDoc,
