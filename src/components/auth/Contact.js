@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button, Typography } from "@mui/material";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db, auth } from "../../firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from "react-i18next";
-import axios from "axios";
+import { onAuthStateChanged } from "firebase/auth";
 
 const ContactForm = () => {
   const { t } = useTranslation();
@@ -16,6 +16,20 @@ const ContactForm = () => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setFormData((prevData) => ({
+          ...prevData,
+          email: user.email,
+        }));
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,19 +55,11 @@ const ContactForm = () => {
         createdAt: serverTimestamp(),
       });
 
-      // Send email using Firebase Function
-      const response = await axios.post(
-        "https://YOUR_FIREBASE_REGION-YOUR_PROJECT_ID.cloudfunctions.net/sendContactEmail",
-        formData
-      );
-
-      if (response.status === 200) {
-        setSubmitted(true);
-        const successMessage = t("messageSent");
-        setMessage(successMessage);
-        toast.success(successMessage);
-        setFormData({ name: "", email: "", message: "" });
-      }
+      setSubmitted(true);
+      const successMessage = t("messageSent");
+      setMessage(successMessage);
+      toast.success(successMessage);
+      setFormData({ name: "", email: formData.email, message: "" });
     } catch (error) {
       console.error("Error submitting contact form:", error);
       const errorMessage = t("submitError");
@@ -88,6 +94,7 @@ const ContactForm = () => {
             value={formData.email}
             onChange={handleChange}
             required
+            disabled={!!formData.email}
           />
           <TextField
             label={t("message")}

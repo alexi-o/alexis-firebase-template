@@ -77,6 +77,7 @@ function App() {
                 backgroundColor: appliedTheme.palette.background.default,
                 flex: 1,
                 paddingTop: user ? "100px" : "0",
+                paddingBottom: user ? "120px" : "0",
                 display: "flex",
                 flexDirection: "column",
                 height: "100%",
@@ -100,24 +101,26 @@ function App() {
                       element={<Navigate to="/home" />}
                     />
                     <Route path="/home" element={<MetadataExtraction />} />
-                    <Route path="/portfolio" element={<Portfolio />} />{" "}
+                    <Route path="/portfolio" element={<Portfolio />} />
                     <Route
                       path="/admin"
                       element={
                         role === "admin" ? <Admin /> : <Navigate to="/home" />
                       }
                     />
-                    <Route path="/chat" element={<Chat />} />{" "}
-                    <Route path="/settings" element={<Settings />} />{" "}
+                    <Route path="/chat" element={<Chat />} />
+                    <Route path="/settings" element={<Settings />} />
                   </>
                 ) : (
                   <>
                     <Route path="/" element={<AuthContainer />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/become" element={<BecomePage />} />
+                    <Route path="/login" element={<AuthContainer />} />
                   </>
                 )}
+                {/* Common routes for all users */}
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/become" element={<BecomePage />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </Container>
