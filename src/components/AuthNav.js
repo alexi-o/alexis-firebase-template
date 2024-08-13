@@ -46,10 +46,7 @@ const AuthenticatedNav = () => {
   }, [role]);
 
   const toggleDrawer = (open) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
+    if (event.key === "Tab" || event.key === "Shift") {
       return;
     }
     setDrawerOpen(open);

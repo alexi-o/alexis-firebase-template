@@ -40,6 +40,9 @@ const Chat = () => {
         }
       });
       setUsers(usersData);
+      if (usersData.length > 0) {
+        setSelectedUser(usersData[0]);
+      }
     };
 
     fetchUsers();
@@ -143,7 +146,7 @@ const Chat = () => {
           <List
             style={{
               flex: 1,
-              overflowY: "auto", // Enable scrolling within the messages list
+              overflowY: "auto",
               padding: 0,
               margin: 0,
             }}
