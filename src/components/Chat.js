@@ -99,7 +99,7 @@ const Chat = () => {
   return (
     <Paper
       style={{
-        height: "100%",
+        height: "calc(100vh - 164px - 56px)",
         width: "100%",
         display: "flex",
         flexDirection: "column",
@@ -146,7 +146,6 @@ const Chat = () => {
               overflowY: "auto", // Enable scrolling within the messages list
               padding: 0,
               margin: 0,
-              maxHeight: "60vh", // Limit the height to fit within the container
             }}
           >
             {messages.map((msg, index) => (

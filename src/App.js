@@ -66,8 +66,6 @@ function App() {
           sx={{
             minHeight: "100vh",
             display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
           }}
         >
           {user && <Navbar />}
@@ -81,8 +79,6 @@ function App() {
                 paddingTop: user ? "100px" : "0",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
                 height: "100%",
                 overflow: "hidden",
               }}
