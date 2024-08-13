@@ -53,6 +53,14 @@ const AuthenticatedNav = () => {
     <>
       <Button color="inherit">
         <Link
+          to="/palette-creator"
+          style={{ color: theme.palette.text.primary, textDecoration: "none" }}
+        >
+          Palette Creator
+        </Link>
+      </Button>
+      <Button color="inherit">
+        <Link
           to="/home"
           style={{ color: theme.palette.text.primary, textDecoration: "none" }}
         >

@@ -16,6 +16,7 @@ import AuthContainer from "./components/auth/AuthContainer";
 import Footer from "./components/layout/Footer";
 import AboutPage from "./components/pages/AboutPage";
 import ContactPage from "./components/auth/Contact";
+import PaletteExtractor from "./components/palette/PaletteExtractor";
 import BecomePage from "./components/pages/BecomePage";
 import Portfolio from "./components/portfolio/Portfolio";
 import Chat from "./components/chat/Chat";
@@ -99,6 +100,10 @@ function App() {
                     <Route
                       path="/request-access"
                       element={<Navigate to="/home" />}
+                    />
+                    <Route
+                      path="/palette-creator"
+                      element={<PaletteExtractor />}
                     />
                     <Route path="/home" element={<MetadataExtraction />} />
                     <Route path="/portfolio" element={<Portfolio />} />
